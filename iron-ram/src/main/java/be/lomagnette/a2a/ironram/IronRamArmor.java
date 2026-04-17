@@ -11,7 +11,7 @@ public class IronRamArmor {
 
 
 
-    @Tool(name="IronRamArmor", value="Navigate through the universe to a specific destination")
+    @Tool(name="collect", value="Navigate through the universe to a specific destination")
     @Transactional
     public KeyObject navigateAndCollect(@P("destination") String destination, @P("name") String name) {
         Log.info("navigated to " + destination);

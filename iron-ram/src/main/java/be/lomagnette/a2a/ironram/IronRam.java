@@ -3,6 +3,7 @@ package be.lomagnette.a2a.ironram;
 
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
 import io.quarkiverse.langchain4j.ToolBox;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -53,5 +54,5 @@ public interface IronRam {
         
         """)
     @ToolBox({Baarvis.class, IronRamArmor.class})
-    public List<String> collect(String objectsDescription);
+    public List<String> collect(@V("objectsDescription") String objectsDescription);
 }
