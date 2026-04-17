@@ -31,11 +31,11 @@ public class Main {
                 .outputKey("stones")
                 .build();
 
-        var bruce = AgenticServices
-                .a2aBuilder("http://localhost:8081", Bruce.class)
-                .inputKeys("stones")
-                .outputKey("result")
-                .build();
+         var bruce = AgenticServices
+                 .a2aBuilder("http://localhost:8081", Bruce.class)
+                 .inputKeys("stones")
+                 .outputKey("result")
+                 .build();
 
 
         var executeMission = AgenticServices.sequenceBuilder()

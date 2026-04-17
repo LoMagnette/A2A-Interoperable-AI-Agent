@@ -1,7 +1,7 @@
 package be.lomagnette.a2a.ironram;
 
+import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.service.V;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -11,9 +11,9 @@ public class IronRamArmor {
 
 
 
-    @Tool("Navigate through the universe to a specific destination")
+    @Tool(name="IronRamArmor", value="Navigate through the universe to a specific destination")
     @Transactional
-    public KeyObject navigateAndCollect(@V("Destination to navigate to")String destination, @V("Object name") String name) {
+    public KeyObject navigateAndCollect(@P("destination") String destination, @P("name") String name) {
         Log.info("navigated to " + destination);
         var object = KeyObject.findByName(name);
         var objectName = object == null ? null : object.name;

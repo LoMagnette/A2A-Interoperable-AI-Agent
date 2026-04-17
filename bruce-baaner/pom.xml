@@ -12,7 +12,7 @@
     <properties>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.34.3</quarkus.platform.version>
+        <quarkus.platform.version>3.35.0.CR1</quarkus.platform.version>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
     </properties>
@@ -66,13 +66,12 @@
         <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-ollama</artifactId>
-            <version>1.8.4</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
-            <version>0.3.2.Final</version>
+            <version>1.0.0.Alpha3</version>
         </dependency>
     </dependencies>
 
@@ -97,9 +96,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>
