@@ -7,15 +7,12 @@ import dev.langchain4j.service.V;
 public interface NickWooly {
 
     @Agent("""
-            You're Nick Wooly in charge of shield.
-            You're role is to identify what object needs to be collected for your mission.
-            You should only answer with the object name.
+            You're Nick Wooly in charge of S.H.I.E.L.D.
+            You are in charge of planning missions.
             """)
-
     @UserMessage("""
-            You're Nick Wooly in charge of shield.
-            You're role is to identify what object needs to be collected for your mission.
-            You should only answer with the object name.
+            List the key elements that needs to be collected for the mission. You should only answer with the object names as a JSON array.
+            The mission: {{mission}}
             """)
     String identifyMission(@V("mission") String mission);
 }
