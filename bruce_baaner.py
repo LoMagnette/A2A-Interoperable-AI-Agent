@@ -1,7 +1,7 @@
-"""Python port of the `bruce-baaner` Quarkus A2A server.
+"""Python port of the ``bruce-baaner`` Quarkus A2A server.
 
 Behaviour mirrors the Java implementation:
-  * Exposes an A2A 1.0 agent card at `/.well-known/agent-card.json`.
+  * Exposes an A2A 1.0 agent card at ``/.well-known/agent-card.json``.
   * Receives a message, asks an Ollama LLM to extract the infinity-stone
     names as a JSON array of strings.
   * If exactly 6 stones are extracted, responds with
@@ -9,10 +9,10 @@ Behaviour mirrors the Java implementation:
   * Otherwise responds with the HULK / Baanos failure message and marks the
     task as failed.
 
-Run:
-    pip install -r requirements.txt
-    ollama pull gemma4
-    python bruce_baaner.py
+Run with uv::
+
+    uv sync
+    uv run python bruce_baaner.py
 """
 
 from __future__ import annotations
@@ -20,17 +20,16 @@ from __future__ import annotations
 import json
 import os
 import re
-from typing import List
 
 import uvicorn
 from fastapi import FastAPI
 from ollama import AsyncClient
-from starlette.types import ASGIApp, Receive, Scope, Send
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.routes import create_agent_card_routes, create_jsonrpc_routes
+from a2a.server.routes.common import DefaultServerCallContextBuilder
 from a2a.server.tasks import InMemoryTaskStore, TaskUpdater
 from a2a.types import (
     AgentCapabilities,
@@ -43,16 +42,14 @@ from a2a.types import (
     TaskStatus,
 )
 
-
 # ---------------------------------------------------------------------------
 # Configuration (mirrors application.properties)
 # ---------------------------------------------------------------------------
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4")  # matches Java application.properties
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma4")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "8081"))  # same as quarkus.http.port
+PORT = int(os.getenv("PORT", "8081"))
 PUBLIC_URL = os.getenv("PUBLIC_URL", f"http://localhost:{PORT}")
-
 
 # ---------------------------------------------------------------------------
 # StoneExtractor — equivalent of the @RegisterAiService interface in Java
@@ -123,13 +120,13 @@ class BruceBaaner:
         raise RuntimeError("Cannot restored the universe")
 
 
-def _parse_stone_array(raw: str) -> List[str]:
+def _parse_stone_array(raw: str) -> list[str]:
     """Best-effort parse of the LLM output into a list of stone names.
 
     Mirrors the defensive trimming the Java code performs on malformed output.
     """
     text = raw.strip()
-    # Some models wrap the array in a markdown code fence; strip it.
+    # Some models wrap the array in a markdown code fence — strip it.
     fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", text, re.DOTALL)
     if fence:
         text = fence.group(1).strip()
@@ -142,7 +139,7 @@ def _parse_stone_array(raw: str) -> List[str]:
     except json.JSONDecodeError:
         pass
 
-    # Fallback: strip the outer brackets and split on commas, matching Java.
+    # Fallback: strip outer brackets and split on commas (matching Java logic).
     match = re.search(r"\[(.*)\]", text, re.DOTALL)
     inner = match.group(1) if match else text
     return [
@@ -169,53 +166,43 @@ class BruceBaanerExecutor(AgentExecutor):
     async def execute(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
-        task_id = context.task_id
-        context_id = context.context_id
-        if not task_id or not context_id or not context.message:
-            return
-
-        # Enqueue a full Task first (required by the v1.0 ActiveTask handler)
+        # The v2 handler (ActiveTask) requires a Task object to be enqueued
+        # before any TaskStatusUpdateEvent, so we submit one first.
         await event_queue.enqueue_event(
             Task(
-                id=task_id,
-                context_id=context_id,
+                id=context.task_id,
+                context_id=context.context_id,
                 status=TaskStatus(state=TaskState.TASK_STATE_SUBMITTED),
-                history=[context.message],
+                history=[context.message] if context.message else [],
             )
         )
 
-        updater = TaskUpdater(event_queue, task_id, context_id)
+        updater = TaskUpdater(
+            event_queue=event_queue,
+            task_id=context.task_id,
+            context_id=context.context_id,
+        )
         await updater.start_work()
 
-        assignment = _extract_text(context)
+        assignment = context.get_user_input() or ""
 
         try:
             response = await self._agent.snap(assignment)
-            await updater.add_artifact(
-                parts=[Part(text=response)]
-            )
+            await updater.add_artifact(parts=[Part(text=response)])
             await updater.complete()
         except Exception:
-            await updater.add_artifact(
-                parts=[Part(text=FAILURE_MESSAGE)]
-            )
+            await updater.add_artifact(parts=[Part(text=FAILURE_MESSAGE)])
             await updater.failed()
 
     async def cancel(
         self, context: RequestContext, event_queue: EventQueue
     ) -> None:
-        task_id = context.task_id
-        context_id = context.context_id
-        if not task_id or not context_id:
-            return
-        updater = TaskUpdater(event_queue, task_id, context_id)
+        updater = TaskUpdater(
+            event_queue=event_queue,
+            task_id=context.task_id,
+            context_id=context.context_id,
+        )
         await updater.cancel()
-
-
-def _extract_text(context: RequestContext) -> str:
-    """Concatenate every text Part in the incoming message."""
-    query = context.get_user_input()
-    return query or ""
 
 
 # ---------------------------------------------------------------------------
@@ -231,28 +218,29 @@ def build_agent_card() -> AgentCard:
             "He's among the rare being in the universe able to handle the "
             "infinity gauntlet and snap using the infinity stones\n"
         ),
+        supported_interfaces=[
+            AgentInterface(
+                protocol_binding="JSONRPC",
+                url=PUBLIC_URL,
+                protocol_version="1.0"
+            ),
+        ],
         version="1.0.0",
         documentation_url="http://example.com/docs",
         capabilities=AgentCapabilities(
             streaming=True,
             push_notifications=False,
+            extended_agent_card=False,
         ),
         default_input_modes=["text"],
         default_output_modes=["text"],
-        supported_interfaces=[
-            AgentInterface(
-                protocol_binding="JSONRPC",
-                protocol_version="1.0",
-                url=PUBLIC_URL,
-            ),
-        ],
         skills=[
             AgentSkill(
                 id="bruce baaner",
                 name="Can level city and snap using the infinity stones",
                 description=(
                     "He can destroy an alien army but also snap using the "
-                    "infinity stones\""
+                    "infinity stones"
                 ),
                 tags=["snap", "smash"],
                 examples=[
@@ -264,83 +252,49 @@ def build_agent_card() -> AgentCard:
 
 
 # ---------------------------------------------------------------------------
-# Compat middleware — the Java A2A SDK (Alpha3) sends "blocking" in
-# SendMessageConfiguration, but the Python SDK 1.0 expects
-# "returnImmediately" (inverse boolean).  Implemented as raw ASGI
-# middleware to avoid BaseHTTPMiddleware issues with SSE streaming.
+# Version compat — the Java A2A SDK (1.0.0.Beta1) does not send the
+# A2A-Version HTTP header. The Python SDK defaults a missing header to "0.3"
+# and then rejects the request. This builder defaults to "1.0" instead.
 # ---------------------------------------------------------------------------
-class JavaA2ACompatMiddleware:
-    def __init__(self, app: ASGIApp) -> None:
-        self._app = app
-
-    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] != "http" or scope.get("method") != "POST":
-            await self._app(scope, receive, send)
-            return
-
-        body_chunks: list[bytes] = []
-        more = True
-
-        async def buffered_receive():
-            nonlocal more
-            message = await receive()
-            if message["type"] == "http.request":
-                body_chunks.append(message.get("body", b""))
-                more = message.get("more_body", False)
-            return message
-
-        # Buffer the full body
-        while more:
-            await buffered_receive()
-
-        raw = b"".join(body_chunks)
-        try:
-            data = json.loads(raw)
-            params = data.get("params", {})
-            config = params.get("configuration", {})
-            if isinstance(config, dict) and "blocking" in config:
-                config["returnImmediately"] = not config.pop("blocking")
-                raw = json.dumps(data).encode()
-        except (json.JSONDecodeError, KeyError):
-            pass
-
-        # Replay the (possibly rewritten) body as a single ASGI message
-        body_sent = False
-
-        async def replay_receive():
-            nonlocal body_sent
-            if not body_sent:
-                body_sent = True
-                return {"type": "http.request", "body": raw, "more_body": False}
-            return await receive()
-
-        await self._app(scope, replay_receive, send)
+class VersionDefaultingContextBuilder(DefaultServerCallContextBuilder):
+    def build(self, request):
+        context = super().build(request)
+        headers = context.state.get("headers", {})
+        if not headers.get("a2a-version"):
+            headers["a2a-version"] = "1.0"
+            context.state["headers"] = headers
+        return context
 
 
 # ---------------------------------------------------------------------------
 # Wiring
 # ---------------------------------------------------------------------------
-def build_app():
+def build_app() -> FastAPI:
     ollama_client = AsyncClient(host=OLLAMA_HOST)
     extractor = StoneExtractor(ollama_client, OLLAMA_MODEL)
     bruce = BruceBaaner(extractor)
+
     agent_card = build_agent_card()
     handler = DefaultRequestHandler(
         agent_executor=BruceBaanerExecutor(bruce),
         task_store=InMemoryTaskStore(),
         agent_card=agent_card,
     )
+
     app = FastAPI()
-    app.add_middleware(JavaA2ACompatMiddleware)  # raw ASGI, wraps the app
     app.routes.extend(create_agent_card_routes(agent_card=agent_card))
-    app.routes.extend(create_jsonrpc_routes(
-        request_handler=handler, rpc_url="/", enable_v0_3_compat=True,
-    ))
+    app.routes.extend(
+        create_jsonrpc_routes(
+            request_handler=handler,
+            rpc_url="/",
+            context_builder=VersionDefaultingContextBuilder(),
+            enable_v0_3_compat=False,
+        )
+    )
     return app
 
 
 app = build_app()
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host=HOST, port=PORT)

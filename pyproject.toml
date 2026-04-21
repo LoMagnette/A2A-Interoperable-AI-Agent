@@ -1,0 +1,12 @@
+[project]
+name = "bruce-baaner-py"
+version = "1.0.0"
+description = "Python port of bruce-baaner A2A server using A2A SDK 1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "a2a-sdk[http-server]>=1.0.0",
+    "fastapi>=0.136.0",
+    "grpcio>=1.80.0",
+    "ollama>=0.6.1",
+    "uvicorn>=0.44.0",
+]
