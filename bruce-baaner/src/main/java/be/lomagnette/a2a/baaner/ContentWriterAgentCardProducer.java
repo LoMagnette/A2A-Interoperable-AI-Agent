@@ -65,7 +65,7 @@ public final class ContentWriterAgentCardProducer {
                                         .id("bruce baaner")
                                         .name("Can level city and snap using the infinity stones")
                                         .description("""
-                                                He can destroy an alien army but also snap using the infinity stones"
+                                                He can destroy an alien army but also snap using the infinity stones
                                                 """)
                                         .tags(List.of("snap", "smash"))
                                         .examples(
