@@ -7,7 +7,6 @@ import io.a2a.spec.AgentInterface;
 import io.a2a.spec.AgentSkill;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Collections;
@@ -22,7 +21,7 @@ public final class ContentWriterAgentCardProducer {
     /**
      * HTTP port for the agent.
      */
-    private int httpPort;
+    private final int httpPort;
 
     public ContentWriterAgentCardProducer(@ConfigProperty(name = "quarkus.http.port") int httpPort) {
         this.httpPort = httpPort;

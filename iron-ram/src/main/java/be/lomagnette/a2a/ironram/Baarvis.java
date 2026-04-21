@@ -13,7 +13,6 @@ public class Baarvis {
     @Tool(name="Baarvis", value="Can find the object and their location based on their some key words")
     @Transactional
     public List<KeyObject> findObjects(@V("keywords") List<String> keywords) {
-        var items  = KeyObject.findByDescriptionContainingAllWords(keywords);
-        return items;
+        return KeyObject.findByDescriptionContainingAllWords(keywords);
     }
 }

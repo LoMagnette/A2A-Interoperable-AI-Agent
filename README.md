@@ -1,6 +1,6 @@
 # A2A-Demo
 
-A small, Marvel-flavored demo of the [Agent-to-Agent (A2A) protocol 0.3.0](https://a2aproject.ai/).
+A small, Marvel-flavored demo of the [Agent-to-Agent (A2A) protocol 1.0](https://a2aproject.ai/).
 Three agents cooperate to recover the Infinity Stones and "snap" the universe
 back into shape:
 
@@ -25,7 +25,7 @@ back into shape:
 |--------------------|----------------------------------------------------------------------------|
 | `iron-ram/`        | Quarkus / LangChain4j A2A server — the stone collector. Port **8080**.    |
 | `bruce-baaner/`    | Quarkus / LangChain4j A2A server — the snapper. Port **8081**.            |
-| `bruce_baaner.py`  | Python port of `bruce-baaner` (same behaviour, same port).                 |
+| `bruce_baaner.py`  | Python port of `bruce-baaner` using A2A SDK 1.0 (same behaviour, same port). |
 | `nick-wooly/`      | Orchestrator. Plain Java `main` that wires the two A2A servers together.  |
 | `pom.xml`          | Maven parent POM for all three Java modules.                               |
 | `requirements.txt` | Python dependencies for `bruce_baaner.py`.                                 |
@@ -33,7 +33,7 @@ back into shape:
 ## Prerequisites
 
 - **Java 21+** and **Maven 3.9+** (or use the included `./mvnw`).
-- **Python 3.10+** (only if you run the Python port).
+- **Python 3.10+** and **[uv](https://docs.astral.sh/uv/)** (only if you run the Python port).
 - **[Ollama](https://ollama.com/)** running locally on `http://localhost:11434`
   with the `gemma4` model pulled:
   ```bash
@@ -77,10 +77,32 @@ cd bruce-baaner
 ```
 
 **b) Python:**
-```bash
-pip install -r requirements.txt
-python bruce_baaner.py
-```
+
+1. Create a virtual environment and install dependencies:
+   ```bash
+   uv venv .venv --python 3.12
+   uv pip install -r requirements.txt
+   ```
+
+2. Pull the Ollama model (if not done already):
+   ```bash
+   ollama pull gemma4
+   ```
+
+3. Start the server:
+   ```bash
+   .venv/bin/python bruce_baaner.py
+   ```
+
+   Optional environment variables (all have defaults):
+   ```bash
+   OLLAMA_MODEL=gemma4 \
+   OLLAMA_HOST=http://localhost:11434 \
+   HOST=0.0.0.0 \
+   PORT=8081 \
+   PUBLIC_URL=http://localhost:8081 \
+   .venv/bin/python bruce_baaner.py
+   ```
 
 Either way the agent card is at:
 <http://localhost:8081/.well-known/agent-card.json>
@@ -121,7 +143,7 @@ model.
 ## Talking to an agent directly
 
 Either A2A server can be queried on its own without the orchestrator — any
-A2A 0.3.0 client works. For a quick smoke test with `curl`:
+A2A 1.0 client works. For a quick smoke test with `curl`:
 
 ```bash
 curl -s http://localhost:8081/.well-known/agent-card.json | jq .

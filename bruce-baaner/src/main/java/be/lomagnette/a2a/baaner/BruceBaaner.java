@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @ApplicationScoped
@@ -17,11 +18,10 @@ public class BruceBaaner {
 
     public String snap(String stonesString) throws Exception {
         var stones = this.stoneExtractor.collectAllStonePresentInAMessage(stonesString);
-        var split = List.of(stones.substring(1, stones.length() - 1)
+        var split = Stream.of(stones.substring(1, stones.length() - 1)
                 .replaceFirst("\"","")
                 .replaceAll("\"","")
                 .split(","))
-                .stream()
                 .map(String::trim)
                 .collect(Collectors.toList());
 

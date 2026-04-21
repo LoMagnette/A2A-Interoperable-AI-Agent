@@ -16,7 +16,7 @@ public class Main {
                 .temperature(0.0)
                 .logRequests(true)
                 .logResponses(true)
-                .modelName("granite4:latest")
+                .modelName("gemma4")
                 .build();
 
         var nickWooly = AgenticServices
