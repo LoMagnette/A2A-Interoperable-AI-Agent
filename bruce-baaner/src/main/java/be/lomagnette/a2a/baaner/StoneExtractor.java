@@ -26,9 +26,9 @@ public interface StoneExtractor {
               ["Here are the stones", "["a stone"]"]
     
             SELF-CHECK BEFORE RESPONDING:
-            ✅ The output starts with [ and ends with ] \s
-            ✅ Each element is a JSON string (enclosed in double quotes) \s
-            ✅ There is no text, markdown, or commentary before or after \s
+            ✅ The output starts with [ and ends with ]
+            ✅ Each element is a JSON string (enclosed in double quotes)
+            ✅ There is no text, markdown, or commentary before or after
             ✅ The array is not quoted as a whole (no leading or trailing ")
     
             Return the final answer **exactly as a JSON array of strings**, nothing else.
