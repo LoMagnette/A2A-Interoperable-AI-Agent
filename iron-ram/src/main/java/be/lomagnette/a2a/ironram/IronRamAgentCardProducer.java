@@ -1,13 +1,13 @@
 package be.lomagnette.a2a.ironram;
 
-import io.a2a.server.PublicAgentCard;
-import io.a2a.spec.AgentCapabilities;
-import io.a2a.spec.AgentCard;
-import io.a2a.spec.AgentInterface;
-import io.a2a.spec.AgentSkill;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.a2aproject.sdk.server.PublicAgentCard;
+import org.a2aproject.sdk.spec.AgentCapabilities;
+import org.a2aproject.sdk.spec.AgentCard;
+import org.a2aproject.sdk.spec.AgentInterface;
+import org.a2aproject.sdk.spec.AgentSkill;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Collections;

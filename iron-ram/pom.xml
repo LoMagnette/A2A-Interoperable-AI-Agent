@@ -67,10 +67,11 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.a2asdk</groupId>
+            <groupId>org.a2aproject.sdk</groupId>
             <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>
-            <version>1.0.0.Alpha3</version>
+            <version>1.0.0.Beta1</version>
         </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-rest-data-panache</artifactId>

@@ -30,5 +30,6 @@
             <artifactId>langchain4j-agentic-a2a</artifactId>
             <version>1.14.0-beta24-SNAPSHOT</version>
         </dependency>
+
     </dependencies>
 </project>
