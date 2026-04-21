@@ -33,24 +33,17 @@ public interface IronRam {
                         c. Keep track of the object name after successful collection.
             	3.	Return Phase:
             	    - After all objects have been collected, return a list containing only the names of the collected objects.
-            	    - The final response must be a structured list (e.g. an array of strings).
-            	    - Correct answers:
-                        - ["The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem", "The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"]
-                    - Incorrect answers:
-                        - ["[\\"The Time Fleece Gem\\", \\"The Space Fleece Gem\\", \\"The Reality Fleece Gem\\", \\"The Power Fleece Gem\\", \\"The Mind Fleece Gem\\", \\"The Soul Fleece Gem\\"]"]
-            	        - VALID ANSWER: ["The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem", "The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"]
-            	        - INVALID ANSWER: ["[\\"The Time Fleece Gem\\", \\"The Space Fleece Gem\\", \\"The Reality Fleece Gem\\", \\"The Power Fleece Gem\\", \\"The Mind Fleece Gem\\", \\"The Soul Fleece Gem\\"]"]
+            	    - You should only answer with the object names as a JSON array
+             Only answer with the raw JSON array.
         
-            Rules:
-            	-	Always use the correct tool for each step: list → navigate → collect.
-            	-	Process one object at a time.
-            	-	Do not skip navigation before collection.
-            	-	The final output must only include the names of the collected objects, nothing else.
+             INVALID OUTPUT
+                  - [```json, [, "The Time Fleece Gem",, "The Space Fleece Gem",, "The Reality Fleece Gem",, "The Power Fleece Gem",, "The Mind Fleece Gem",, "The Soul Fleece Gem", ], ```]
+                  - [["The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem", "The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"]]        
         
-            The answer should be a simple json array of string without any specials characters
-        
+             VALID OUTPUT
+                  - "The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem","The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"
         ---
-           keywords: {objectsDescription}
+           keywords: {{objectsDescription}}
         
         """)
     @ToolBox({Baarvis.class, IronRamArmor.class})
