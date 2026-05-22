@@ -1,5 +1,6 @@
 package be.lomagnette.a2a.baaner;
 
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import org.a2aproject.sdk.server.agentexecution.AgentExecutor;
@@ -45,7 +46,7 @@ public final class BruuceAgentExecutorProducer {
 
         @Override
         public void execute(RequestContext context, AgentEmitter emitter) throws A2AError {
-            if(context.getMessage() == null){
+            if ( context.getMessage() == null) {
                 emitter.reject();
             }
 
@@ -60,21 +61,22 @@ public final class BruuceAgentExecutorProducer {
             // call the content writer agent with the message
 
             try {
+                Log.info("Bruce Baaner request: " + assignment);
                 var response = agent.snap(assignment);
                 // create the response part
                 final TextPart responsePart = new TextPart(response, null);
                 final List<Part<?>> parts = List.of(responsePart);
-
+                Log.info("Bruce Baaner response: " + response);
                 // add the response as an artifact and complete the task
                 emitter.addArtifact(parts, null, null, null);
                 emitter.complete();
 
-            } catch (Exception e) {
+            } catch (Exception _) {
                 final TextPart responsePart = new TextPart("""
-                    Bruce Baaner was not able to snap and restore the universe and in an
-                    excess of rage transform into HULK and killed all the hero on earth
-                    then join Baanos.
-                """, null);
+                            Bruce Baaner was not able to snap and restore the universe and in an
+                            excess of rage transform into HULK and killed all the hero on earth
+                            then join Baanos.
+                        """, null);
                 final List<Part<?>> parts = List.of(responsePart);
                 emitter.addArtifact(parts, null, null, null);
                 emitter.fail();
@@ -84,6 +86,9 @@ public final class BruuceAgentExecutorProducer {
         @Override
         public void cancel(RequestContext context, AgentEmitter emitter) throws A2AError {
             final Task task = context.getTask();
+            if(task == null){
+                throw new TaskNotCancelableError();
+            }
 
             if (task.status().state() == TaskState.TASK_STATE_CANCELED) {
                 // task already cancelled
@@ -100,11 +105,9 @@ public final class BruuceAgentExecutorProducer {
 
         private String extractTextFromMessage(final Message message) {
             final StringBuilder textBuilder = new StringBuilder();
-            if (message.parts() != null) {
-                for (final Part part : message.parts()) {
-                    if (part instanceof TextPart textPart) {
-                        textBuilder.append(textPart.text());
-                    }
+            for (final Part part : message.parts()) {
+                if (part instanceof TextPart textPart) {
+                    textBuilder.append(textPart.text());
                 }
             }
             return textBuilder.toString();

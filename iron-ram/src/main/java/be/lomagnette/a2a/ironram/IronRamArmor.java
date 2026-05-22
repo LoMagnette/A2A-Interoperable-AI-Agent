@@ -16,8 +16,7 @@ public class IronRamArmor {
     public KeyObject navigateAndCollect(@P("destination") String destination, @P("name") String name) {
         Log.info("navigated to " + destination);
         var object = KeyObject.findByName(name);
-        var objectName = object == null ? null : object.name;
-        Log.info("object to collect " + objectName);
+        Log.info("object to collect " + object);
         return object;
     }
 }
