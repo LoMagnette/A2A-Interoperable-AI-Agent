@@ -15,8 +15,11 @@ import java.util.List;
 @ApplicationScoped
 public final class IronRamAgentExecutorProducer {
 
-    @Inject
-    private IronRam ironRam;
+    private final IronRam ironRam;
+
+    public IronRamAgentExecutorProducer(IronRam ironRam) {
+        this.ironRam = ironRam;
+    }
 
     /**
      * Creates the agent executor for the content writer agent.
@@ -54,8 +57,10 @@ public final class IronRamAgentExecutorProducer {
             // extract the text from the message
             final String assignment = extractTextFromMessage(context.getMessage());
 
+            var contextId = context.getContextId();
+
             // call the content writer agent with the message
-            final String response = agent.collect(assignment).toString();
+            final String response = agent.collect(contextId, assignment).toString();
 
             // create the response part
             final TextPart responsePart = new TextPart(response, null);

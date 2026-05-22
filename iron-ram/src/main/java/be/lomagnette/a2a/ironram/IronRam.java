@@ -1,6 +1,7 @@
 package be.lomagnette.a2a.ironram;
 
 
+import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -47,5 +48,5 @@ public interface IronRam {
         
         """)
     @ToolBox({Baarvis.class, IronRamArmor.class})
-    public List<String> collect(@V("objectsDescription") String objectsDescription);
+    List<String> collect(@MemoryId String contextId, @V("objectsDescription") String objectsDescription);
 }
