@@ -16,6 +16,7 @@
         <module>iron-ram</module>
         <module>bruce-baaner</module>
         <module>nick-wooly</module>
+        <module>iron-ram-garage</module>
     </modules>
 
     <properties>

@@ -6,7 +6,7 @@ import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import io.quarkiverse.langchain4j.RegisterAiService;
-import io.quarkiverse.langchain4j.ToolBox;
+import io.quarkiverse.langchain4j.mcp.runtime.McpToolBox;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -47,6 +47,6 @@ public interface IronRam {
            keywords: {{objectsDescription}}
         
         """)
-    @ToolBox({Baarvis.class, IronRamArmor.class})
+    @McpToolBox("garage")
     List<String> collect(@MemoryId String contextId, @V("objectsDescription") String objectsDescription);
 }
