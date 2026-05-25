@@ -39,7 +39,7 @@ public interface IronRam {
         
              INVALID OUTPUT
                   - [```json, [, "The Time Fleece Gem",, "The Space Fleece Gem",, "The Reality Fleece Gem",, "The Power Fleece Gem",, "The Mind Fleece Gem",, "The Soul Fleece Gem", ], ```]
-                  - [["The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem", "The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"]]        
+                  - [["The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem", "The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"]]
         
              VALID OUTPUT
                   - "The Time Fleece Gem", "The Space Fleece Gem", "The Reality Fleece Gem","The Power Fleece Gem", "The Mind Fleece Gem", "The Soul Fleece Gem"
