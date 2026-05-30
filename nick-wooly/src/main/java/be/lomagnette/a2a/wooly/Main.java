@@ -2,15 +2,21 @@ package be.lomagnette.a2a.wooly;
 
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.AgenticServices;
+import dev.langchain4j.agentic.observability.AgentMonitor;
+import dev.langchain4j.agentic.observability.HtmlReportGenerator;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.service.V;
 
+import javax.management.monitor.Monitor;
+import java.nio.file.Path;
 import java.util.Map;
 
 
 public class Main {
     void main() {
+
+        var monitor = new AgentMonitor();
         ChatModel model = OllamaChatModel.builder()
                 .baseUrl("http://localhost:11434")
                 .temperature(0.0)
@@ -41,6 +47,7 @@ public class Main {
         var executeMission = AgenticServices.sequenceBuilder()
                 .subAgents(nickWooly, ironRam, bruce)
                 .outputKey("result")
+                .listener(monitor)
                 .build();
 
         Object invoke = executeMission.invoke(Map.of("mission", """
@@ -49,6 +56,8 @@ public class Main {
                 """));
         System.out.println("-------- Mission results ---------");
         System.out.println(invoke);
+
+        HtmlReportGenerator.generateReport(monitor, Path.of("target/a2a-workflow.html"));
     }
 
     public interface IronRam {
