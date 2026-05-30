@@ -80,7 +80,7 @@ cd iron-ram-garage
 
 This boots a Postgres Dev Service, loads `import.sql` with the `KeyObject`
 catalogue (Infinity Stones and other Marvel-flavored items), and exposes the
-MCP endpoint at <http://localhost:8082/mcp/sse>.
+MCP endpoint at <http://localhost:8082/mcp>.
 
 ### 2. Iron-Ram (A2A, port 8080)
 
@@ -173,7 +173,8 @@ The Java servers read `src/main/resources/application.properties`. Notable
 settings:
 
 - `iron-ram` — `quarkus.langchain4j.ollama.chat-model.model-id=gemma4`,
-  `quarkus.langchain4j.mcp.garage.url=http://localhost:8082/mcp/sse`. There is
+  `quarkus.langchain4j.mcp.garage.url=http://localhost:8082/mcp` with
+  `transport-type=streamable-http`. There is
   also a `quarkus.langchain4j.timeout=60s` workaround for
   [quarkiverse/quarkus-langchain4j#2340](https://github.com/quarkiverse/quarkus-langchain4j/issues/2340)
   on Quarkus 3.35.x.
@@ -190,8 +191,11 @@ curl -s http://localhost:8080/.well-known/agent-card.json | jq .
 curl -s http://localhost:8081/.well-known/agent-card.json | jq .
 ```
 
-And the MCP server can be probed at its SSE endpoint:
+And the MCP server can be probed at its streamable HTTP endpoint:
 
 ```bash
-curl -N http://localhost:8082/mcp/sse
+curl -N -H "Accept: application/json, text/event-stream" \
+  -H "Content-Type: application/json" \
+  -X POST http://localhost:8082/mcp \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
