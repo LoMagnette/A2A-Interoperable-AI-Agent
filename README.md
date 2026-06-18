@@ -41,7 +41,7 @@ into shape:
 | `bruce-baaner/`      | Quarkus / LangChain4j A2A server — the snapper. Port **8081**.            |
 | `bruce_baaner.py`    | Python port of `bruce-baaner` using A2A SDK 1.0 (same behaviour, same port). |
 | `nick-wooly/`        | Orchestrator. Plain Java `main` that wires the two A2A servers together.  |
-| `dashboard/`         | Standalone, dependency-free **live "Mission Control" dashboard** (SSE). Serves a real-time view of the whole call graph. Port **8090**. |
+| `dashboard/`         | Quarkus **live "Mission Control" dashboard** (SSE). Serves a real-time view of the whole call graph. Port **8090**. |
 | `telemetry/`         | Tiny fire-and-forget client (`MissionDashboard`) each module uses to report agent/tool activity to the dashboard. |
 | `pom.xml`            | Maven parent POM for all Java modules.                                     |
 | `requirements.txt`   | Python dependencies for `bruce_baaner.py`.                                 |
@@ -75,20 +75,22 @@ available when the next one boots.
 
 ### 0. Mission Control dashboard (live view, port 8090) — optional but recommended
 
-Start this first and leave it running. It is a standalone, dependency-free
-HTTP server that shows the whole mission unfold **in real time** — Nick Wooly's
-LLM step, the A2A hand-offs to Iron-Ram and Bruce, and every `Baarvis`/`collect`
-MCP tool call nested under Iron-Ram — streamed over Server-Sent Events.
+Start this first and leave it running. It is a small Quarkus app that shows the
+whole mission unfold **in real time** — Nick Wooly's LLM step, the A2A hand-offs
+to Iron-Ram and Bruce, and every `Baarvis`/`collect` MCP tool call nested under
+Iron-Ram — streamed over Server-Sent Events. It has a light/dark toggle for use
+on a projector.
 
 ```bash
-java -jar dashboard/target/dashboard.jar
+cd dashboard
+../mvnw quarkus:dev
 # then open http://localhost:8090/
 ```
 
 Every other process reports to it best-effort via the `telemetry` module, so if
 the dashboard is **not** running the demo behaves exactly as before. Override the
-location with `-Ddashboard.url=http://host:port` / `DASHBOARD_URL` (emitters) and
-`-Ddashboard.port=...` / `DASHBOARD_PORT` (server). The dashboard survives many
+emitter target with `-Ddashboard.url=http://host:port` / `DASHBOARD_URL`, and the
+dashboard's own port with `-Dquarkus.http.port=...`. The dashboard survives many
 mission runs; each new run resets the view automatically.
 
 ### 1. Iron-Ram Garage (MCP, port 8082)
