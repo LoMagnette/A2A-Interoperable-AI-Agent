@@ -4,10 +4,12 @@ import be.lomagnette.a2a.telemetry.MissionDashboard;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import org.a2aproject.sdk.server.agentexecution.AgentExecutor;
 import org.a2aproject.sdk.server.agentexecution.RequestContext;
 import org.a2aproject.sdk.server.tasks.AgentEmitter;
 import org.a2aproject.sdk.spec.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
 
@@ -22,6 +24,10 @@ public final class BruuceAgentExecutorProducer {
      */
     private final BruceBaaner bruceBaaner;
 
+    @Inject
+    @ConfigProperty(name = "quarkus.http.port")
+    int port;
+
     public BruuceAgentExecutorProducer(BruceBaaner bruceBaaner) {
         this.bruceBaaner = bruceBaaner;
     }
@@ -33,16 +39,18 @@ public final class BruuceAgentExecutorProducer {
      */
     @Produces
     public AgentExecutor agentExecutor() {
-        return new ContentWriterAgentExecutor(bruceBaaner);
+        return new ContentWriterAgentExecutor(bruceBaaner, "http://localhost:" + port);
     }
 
     private static class ContentWriterAgentExecutor implements AgentExecutor {
 
         private final BruceBaaner agent;
+        private final String endpoint;
 
 
-        ContentWriterAgentExecutor(final BruceBaaner baaner) {
+        ContentWriterAgentExecutor(final BruceBaaner baaner, final String endpoint) {
             this.agent = baaner;
+            this.endpoint = endpoint;
         }
 
         @Override
@@ -59,7 +67,7 @@ public final class BruuceAgentExecutorProducer {
             // extract the text from the message
             final String assignment = extractTextFromMessage(context.getMessage());
 
-            var span = MissionDashboard.agent("bruce", "Bruce Baaner", "http://localhost:8081")
+            var span = MissionDashboard.agent("bruce", "Bruce Baaner", endpoint)
                     .input(assignment).start();
 
             // call the content writer agent with the message

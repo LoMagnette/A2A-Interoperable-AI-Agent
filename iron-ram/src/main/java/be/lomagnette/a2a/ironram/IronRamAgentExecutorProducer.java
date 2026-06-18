@@ -9,6 +9,7 @@ import org.a2aproject.sdk.server.agentexecution.AgentExecutor;
 import org.a2aproject.sdk.server.agentexecution.RequestContext;
 import org.a2aproject.sdk.server.tasks.AgentEmitter;
 import org.a2aproject.sdk.spec.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
 
@@ -17,6 +18,10 @@ import java.util.List;
 public final class IronRamAgentExecutorProducer {
 
     private final IronRam ironRam;
+
+    @Inject
+    @ConfigProperty(name = "quarkus.http.port")
+    int port;
 
     public IronRamAgentExecutorProducer(IronRam ironRam) {
         this.ironRam = ironRam;
@@ -29,7 +34,7 @@ public final class IronRamAgentExecutorProducer {
      */
     @Produces
     public AgentExecutor agentExecutor() {
-        return new SuperHeroExecutor(ironRam);
+        return new SuperHeroExecutor(ironRam, "http://localhost:" + port);
     }
 
     /**
@@ -38,9 +43,11 @@ public final class IronRamAgentExecutorProducer {
     private static class SuperHeroExecutor implements AgentExecutor {
 
         private final IronRam agent;
+        private final String endpoint;
 
-        SuperHeroExecutor(final IronRam ironRam) {
+        SuperHeroExecutor(final IronRam ironRam, final String endpoint) {
             this.agent = ironRam;
+            this.endpoint = endpoint;
         }
 
         @Override
@@ -60,7 +67,7 @@ public final class IronRamAgentExecutorProducer {
 
             var contextId = context.getContextId();
 
-            var span = MissionDashboard.agent("ironRam", "Iron-Ram", "http://localhost:8080")
+            var span = MissionDashboard.agent("ironRam", "Iron-Ram", endpoint)
                     .input(assignment).start();
 
             // call the content writer agent with the message
