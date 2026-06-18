@@ -24,27 +24,22 @@ public class Main {
         var monitor = new AgentMonitor();
 
         // Report Nick Wooly's LLM step (identifyMission) to the live dashboard.
+        var nickSpan = MissionDashboard.llm("nickWooly", "Nick Wooly", "ollama/gemma4")
+                .input("Identifying which objects the mission needs");
         ChatModelListener dashboardListener = new ChatModelListener() {
             @Override
             public void onRequest(ChatModelRequestContext ctx) {
-                MissionDashboard.event("agent-start")
-                        .id("nickWooly").label("Nick Wooly").kind("llm")
-                        .endpoint("ollama/gemma4")
-                        .detail("Identifying which objects the mission needs").send();
+                nickSpan.start();
             }
 
             @Override
             public void onResponse(ChatModelResponseContext ctx) {
-                MissionDashboard.event("agent-end")
-                        .id("nickWooly").status("ok")
-                        .detail(ctx.chatResponse().aiMessage().text()).send();
+                nickSpan.ok(ctx.chatResponse().aiMessage().text());
             }
 
             @Override
             public void onError(ChatModelErrorContext ctx) {
-                MissionDashboard.event("agent-end")
-                        .id("nickWooly").status("error")
-                        .detail(String.valueOf(ctx.error().getMessage())).send();
+                nickSpan.error(String.valueOf(ctx.error().getMessage()));
             }
         };
 
@@ -87,19 +82,11 @@ public class Main {
                 The only way to reverse it is to quickly collect the infinity stones and snap it.
                 """;
 
-        MissionDashboard.event("mission-start").id("mission")
-                .label("Restore the universe").detail(mission).send();
+        var missionSpan = MissionDashboard.mission("mission", "Restore the universe")
+                .input(mission).start();
 
-        Object invoke;
-        try {
-            invoke = executeMission.invoke(Map.of("mission", mission));
-            MissionDashboard.event("mission-end").id("mission")
-                    .status("ok").detail(String.valueOf(invoke)).send();
-        } catch (RuntimeException e) {
-            MissionDashboard.event("mission-end").id("mission")
-                    .status("error").detail(String.valueOf(e.getMessage())).send();
-            throw e;
-        }
+        Object invoke = executeMission.invoke(Map.of("mission", mission));
+        missionSpan.ok(String.valueOf(invoke));
 
         System.out.println("-------- Mission results ---------");
         System.out.println(invoke);

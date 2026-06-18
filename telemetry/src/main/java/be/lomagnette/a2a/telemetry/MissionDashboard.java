@@ -65,6 +65,87 @@ public final class MissionDashboard {
         return new Event(type);
     }
 
+    // ---- spans: a start/end pair you log around your real code ------------
+    //
+    // Build a span, call start() before the work and ok()/error() after, so the
+    // telemetry reads like plain log lines while the method logic stays in view:
+    //
+    //   var span = MissionDashboard.agent("ironRam", "Iron-Ram", url).input(assignment).start();
+    //   String stones = agent.collect(id, assignment).toString();
+    //   span.ok(stones);
+
+    /** A span for an A2A agent (lights up an {@code agent} node on the graph). */
+    public static Span agent(String id, String label, String endpoint) {
+        return new Span("agent", id, null, label, "a2a", endpoint);
+    }
+
+    /** A span for the orchestrator's LLM step. */
+    public static Span llm(String id, String label, String endpoint) {
+        return new Span("agent", id, null, label, "llm", endpoint);
+    }
+
+    /** A span for an MCP tool call, nested under {@code parent} on the graph. */
+    public static Span tool(String id, String parent, String label, String endpoint) {
+        return new Span("tool", id, parent, label, "mcp", endpoint);
+    }
+
+    /** A span for the whole mission. */
+    public static Span mission(String id, String label) {
+        return new Span("mission", id, null, label, "orchestrator", null);
+    }
+
+    /**
+     * A unit of work reported to the dashboard as a {@code <kind>-start} event
+     * followed by a {@code <kind>-end} event. Call {@link #start()} before the
+     * work and {@link #ok}/{@link #error} after it.
+     */
+    public static final class Span {
+
+        private final String prefix;
+        private final String id;
+        private final String parent;
+        private final String label;
+        private final String kind;
+        private final String endpoint;
+        private String input;
+        private boolean started;
+
+        private Span(String prefix, String id, String parent, String label, String kind, String endpoint) {
+            this.prefix = prefix;
+            this.id = id;
+            this.parent = parent;
+            this.label = label;
+            this.kind = kind;
+            this.endpoint = endpoint;
+        }
+
+        /** Detail shown when the span starts (the request / input). */
+        public Span input(String detail) {
+            this.input = detail;
+            return this;
+        }
+
+        /** Emit the start event (idempotent). */
+        public Span start() {
+            if (!started) {
+                started = true;
+                event(prefix + "-start").id(id).parent(parent).label(label)
+                        .kind(kind).endpoint(endpoint).detail(input).send();
+            }
+            return this;
+        }
+
+        /** Emit a successful end event. */
+        public void ok(String detail) {
+            event(prefix + "-end").id(id).status("ok").detail(detail).send();
+        }
+
+        /** Emit a failed end event. */
+        public void error(String detail) {
+            event(prefix + "-end").id(id).status("error").detail(detail).send();
+        }
+    }
+
     /**
      * Block briefly so queued events are delivered before a short-lived process
      * exits (e.g. Nick Wooly's {@code main}). Best-effort; never throws. After

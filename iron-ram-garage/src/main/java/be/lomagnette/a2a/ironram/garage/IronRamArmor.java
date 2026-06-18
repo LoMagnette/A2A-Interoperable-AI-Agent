@@ -19,26 +19,19 @@ public class IronRamArmor {
     public KeyObject navigateAndCollect(
             @ToolArg(description = "Destination to navigate to") String destination,
             @ToolArg(description = "Name of the object to collect") String name) {
-        String nodeId = "collect-" + SEQ.incrementAndGet();
-        MissionDashboard.event("tool-start")
-                .id(nodeId).parent("ironRam").label("collect: " + name).kind("mcp")
-                .endpoint("http://localhost:8082/mcp")
-                .detail("navigate → " + destination).send();
-        try {
-            Log.info("navigated to " + destination);
-            var object = KeyObject.findByName(name);
-            Log.info("object to collect " + object);
-            if (object == null) {
-                throw new IllegalArgumentException(
-                        "No object named '" + name + "' exists at destination '" + destination + "'");
-            }
-            MissionDashboard.event("tool-end")
-                    .id(nodeId).status("ok").detail("collected '" + name + "'").send();
-            return object;
-        } catch (RuntimeException e) {
-            MissionDashboard.event("tool-end")
-                    .id(nodeId).status("error").detail(String.valueOf(e.getMessage())).send();
-            throw e;
+        var span = MissionDashboard.tool("collect-" + SEQ.incrementAndGet(), "ironRam", "collect: " + name, "http://localhost:8082/mcp")
+                .input("navigate → " + destination).start();
+
+        Log.info("navigated to " + destination);
+        var object = KeyObject.findByName(name);
+        Log.info("object to collect " + object);
+        if (object == null) {
+            span.error("no object named '" + name + "' at '" + destination + "'");
+            throw new IllegalArgumentException(
+                    "No object named '" + name + "' exists at destination '" + destination + "'");
         }
+
+        span.ok("collected '" + name + "'");
+        return object;
     }
 }

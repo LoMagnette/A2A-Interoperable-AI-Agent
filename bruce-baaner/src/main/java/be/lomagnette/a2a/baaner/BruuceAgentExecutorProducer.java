@@ -59,29 +59,24 @@ public final class BruuceAgentExecutorProducer {
             // extract the text from the message
             final String assignment = extractTextFromMessage(context.getMessage());
 
-            MissionDashboard.event("agent-start")
-                    .id("bruce").label("Bruce Baaner").kind("a2a")
-                    .endpoint("http://localhost:8081").detail(assignment).send();
+            var span = MissionDashboard.agent("bruce", "Bruce Baaner", "http://localhost:8081")
+                    .input(assignment).start();
 
             // call the content writer agent with the message
-
             try {
                 Log.info("Bruce Baaner request: " + assignment);
                 var response = agent.snap(assignment);
+                span.ok(response);
                 // create the response part
                 final TextPart responsePart = new TextPart(response, null);
                 final List<Part<?>> parts = List.of(responsePart);
                 Log.info("Bruce Baaner response: " + response);
-                MissionDashboard.event("agent-end")
-                        .id("bruce").status("ok").detail(response).send();
                 // add the response as an artifact and complete the task
                 emitter.addArtifact(parts, null, null, null);
                 emitter.complete();
 
             } catch (Exception _) {
-                MissionDashboard.event("agent-end")
-                        .id("bruce").status("error")
-                        .detail("Snap failed — Bruce raged into HULK and the universe was lost").send();
+                span.error("snap failed — Bruce raged into HULK and the universe was lost");
                 final TextPart responsePart = new TextPart("""
                             Bruce Baaner was not able to snap and restore the universe and in an
                             excess of rage transform into HULK and killed all the hero on earth

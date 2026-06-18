@@ -60,23 +60,12 @@ public final class IronRamAgentExecutorProducer {
 
             var contextId = context.getContextId();
 
-            MissionDashboard.event("agent-start")
-                    .id("ironRam").label("Iron-Ram").kind("a2a")
-                    .endpoint("http://localhost:8080").detail(assignment).send();
+            var span = MissionDashboard.agent("ironRam", "Iron-Ram", "http://localhost:8080")
+                    .input(assignment).start();
 
             // call the content writer agent with the message
-            final String response;
-            try {
-                response = agent.collect(contextId, assignment).toString();
-            } catch (RuntimeException e) {
-                MissionDashboard.event("agent-end")
-                        .id("ironRam").status("error")
-                        .detail(String.valueOf(e.getMessage())).send();
-                throw e;
-            }
-
-            MissionDashboard.event("agent-end")
-                    .id("ironRam").status("ok").detail(response).send();
+            final String response = agent.collect(contextId, assignment).toString();
+            span.ok(response);
 
             // create the response part
             final TextPart responsePart = new TextPart(response, null);
