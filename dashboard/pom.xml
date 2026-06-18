@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>be.lomagnette</groupId>
+        <artifactId>a2a-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>dashboard</artifactId>
+    <name>Mission Control Dashboard</name>
+    <description>Standalone, dependency-free live dashboard (SSE) for the A2A + MCP demo.</description>
+
+    <properties>
+        <maven.compiler.release>25</maven.compiler.release>
+        <!-- skip the Quarkus-flavoured surefire defaults; nothing to test here -->
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
+    <!-- JDK-only: uses com.sun.net.httpserver. No external dependencies. -->
+
+    <build>
+        <finalName>dashboard</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>be.lomagnette.a2a.dashboard.DashboardServer</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

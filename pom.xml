@@ -13,6 +13,8 @@
     <description>Parent POM for A2A demo</description>
 
     <modules>
+        <module>telemetry</module>
+        <module>dashboard</module>
         <module>iron-ram</module>
         <module>bruce-baaner</module>
         <module>nick-wooly</module>

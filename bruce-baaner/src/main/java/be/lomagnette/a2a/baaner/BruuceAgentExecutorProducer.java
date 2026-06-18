@@ -1,5 +1,6 @@
 package be.lomagnette.a2a.baaner;
 
+import be.lomagnette.a2a.telemetry.MissionDashboard;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -58,6 +59,10 @@ public final class BruuceAgentExecutorProducer {
             // extract the text from the message
             final String assignment = extractTextFromMessage(context.getMessage());
 
+            MissionDashboard.event("agent-start")
+                    .id("bruce").label("Bruce Baaner").kind("a2a")
+                    .endpoint("http://localhost:8081").detail(assignment).send();
+
             // call the content writer agent with the message
 
             try {
@@ -67,11 +72,16 @@ public final class BruuceAgentExecutorProducer {
                 final TextPart responsePart = new TextPart(response, null);
                 final List<Part<?>> parts = List.of(responsePart);
                 Log.info("Bruce Baaner response: " + response);
+                MissionDashboard.event("agent-end")
+                        .id("bruce").status("ok").detail(response).send();
                 // add the response as an artifact and complete the task
                 emitter.addArtifact(parts, null, null, null);
                 emitter.complete();
 
             } catch (Exception _) {
+                MissionDashboard.event("agent-end")
+                        .id("bruce").status("error")
+                        .detail("Snap failed — Bruce raged into HULK and the universe was lost").send();
                 final TextPart responsePart = new TextPart("""
                             Bruce Baaner was not able to snap and restore the universe and in an
                             excess of rage transform into HULK and killed all the hero on earth

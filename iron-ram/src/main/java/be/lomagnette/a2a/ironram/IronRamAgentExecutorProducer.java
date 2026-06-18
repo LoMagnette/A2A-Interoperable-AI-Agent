@@ -1,6 +1,7 @@
 package be.lomagnette.a2a.ironram;
 
 
+import be.lomagnette.a2a.telemetry.MissionDashboard;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -59,8 +60,23 @@ public final class IronRamAgentExecutorProducer {
 
             var contextId = context.getContextId();
 
+            MissionDashboard.event("agent-start")
+                    .id("ironRam").label("Iron-Ram").kind("a2a")
+                    .endpoint("http://localhost:8080").detail(assignment).send();
+
             // call the content writer agent with the message
-            final String response = agent.collect(contextId, assignment).toString();
+            final String response;
+            try {
+                response = agent.collect(contextId, assignment).toString();
+            } catch (RuntimeException e) {
+                MissionDashboard.event("agent-end")
+                        .id("ironRam").status("error")
+                        .detail(String.valueOf(e.getMessage())).send();
+                throw e;
+            }
+
+            MissionDashboard.event("agent-end")
+                    .id("ironRam").status("ok").detail(response).send();
 
             // create the response part
             final TextPart responsePart = new TextPart(response, null);

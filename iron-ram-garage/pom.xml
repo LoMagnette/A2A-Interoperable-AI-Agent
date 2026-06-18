@@ -39,6 +39,11 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>be.lomagnette</groupId>
+            <artifactId>telemetry</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
