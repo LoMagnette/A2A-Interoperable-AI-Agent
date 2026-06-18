@@ -17,6 +17,10 @@ public class IronRamArmor {
         Log.info("navigated to " + destination);
         var object = KeyObject.findByName(name);
         Log.info("object to collect " + object);
+        if (object == null) {
+            throw new IllegalArgumentException(
+                    "No object named '" + name + "' exists at destination '" + destination + "'");
+        }
         return object;
     }
 }

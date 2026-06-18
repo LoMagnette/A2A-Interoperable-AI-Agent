@@ -8,7 +8,6 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.service.V;
 
-import javax.management.monitor.Monitor;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -57,7 +56,7 @@ public class Main {
         System.out.println("-------- Mission results ---------");
         System.out.println(invoke);
 
-        HtmlReportGenerator.generateReport(monitor, Path.of("target/a2a-workflow.html"));
+        HtmlReportGenerator.generateReport(monitor, Path.of("a2a-workflow.html"));
     }
 
     public interface IronRam {

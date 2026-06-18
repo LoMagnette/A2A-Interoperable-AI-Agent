@@ -28,7 +28,7 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-agentic-a2a</artifactId>
-            <version>1.16.0-beta26-SNAPSHOT</version>
+            <version>1.17.0-beta27-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

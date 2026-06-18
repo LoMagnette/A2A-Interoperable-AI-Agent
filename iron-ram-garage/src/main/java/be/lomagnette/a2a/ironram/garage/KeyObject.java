@@ -34,8 +34,7 @@ public class KeyObject extends PanacheEntity {
 
     public static KeyObject findByName(String name) {
         if (name == null) return null;
-        return find("name", name).firstResult();
-
+        return find("lower(name) = lower(?1)", name.trim()).firstResult();
     }
 
     /**
