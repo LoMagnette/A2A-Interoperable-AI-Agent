@@ -18,12 +18,12 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-agentic</artifactId>
-            <version>1.12.2-beta22</version>
+            <version>1.17.0-beta27-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-ollama</artifactId>
-            <version>1.12.2</version>
+            <version>1.16.3</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
