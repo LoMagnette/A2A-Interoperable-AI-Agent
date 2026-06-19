@@ -3,7 +3,6 @@ package be.lomagnette.a2a.wooly;
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.declarative.K;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.service.V;
 
 public interface NickWooly {
 
