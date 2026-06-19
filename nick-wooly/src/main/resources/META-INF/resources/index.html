@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mission Control · Avengers Initiative</title>
+<title>Mission Control · Baavengers Initiative</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800;900&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -159,7 +159,8 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .unit.used{opacity:1;}
 .unit.active{opacity:1;box-shadow:0 0 0 2px var(--run),var(--shadow);transform:translateY(-2px);}
 .unit-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-         font-size:18px;flex-shrink:0;border:1px solid var(--hairline);}
+         font-size:18px;flex-shrink:0;border:1px solid var(--hairline);overflow:hidden;}
+.unit-av img{width:100%;height:100%;object-fit:cover;display:block;}
 .av-nick{background:linear-gradient(135deg,#3a4252,#11151f);box-shadow:0 0 10px rgba(138,147,168,.5);}
 .av-iron{background:radial-gradient(circle at 50% 40%,#9fe9ff,#2bb8d6 45%,#0d2030);box-shadow:0 0 12px rgba(43,200,214,.6);}
 .av-hulk{background:linear-gradient(135deg,var(--h-hulk),var(--h-hulk-2));box-shadow:0 0 10px rgba(76,175,61,.55);}
@@ -262,7 +263,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
       <path d="M17 10 L20.5 13 L17 16" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
   <div>
-    <div class="navbar-title">Mission Control · Avengers Initiative</div>
+    <div class="navbar-title">Mission Control · Baavengers Initiative</div>
     <div class="navbar-sub">Local orchestrator ⇄ Remote A2A services · live exchange</div>
   </div>
   <div class="spacer"></div>
@@ -293,7 +294,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
         <div class="planner-top">
           <span class="dot" id="plannerDot"></span>
           <span class="unit-av av-goap">🧠</span>
-          <span class="unit-name">GOAP Planner</span>
+          <span class="unit-name">BAAVENGERS</span>
           <span class="tag tag-goap">Goal-oriented</span>
           <span id="plannerState" class="planner-state">idle</span>
         </div>
@@ -303,7 +304,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
       <div id="unit-nickWooly" class="unit kind-llm">
         <span class="dot"></span>
-        <span class="unit-av av-nick">🕶️</span>
+        <span class="unit-av av-nick"><img src="/nickwooly.png" alt="Nick Wooly"></span>
         <div class="unit-body"><div class="unit-name">Nick Wooly</div><div class="unit-ep">ollama/gemma4 · in-process LLM</div></div>
         <span class="unit-count" data-count>0×</span>
         <span class="unit-state" data-state>idle</span>
@@ -317,7 +318,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
       <div id="unit-ironRam" class="unit kind-a2a">
         <span class="dot"></span>
-        <span class="unit-av av-iron">🤖</span>
+        <span class="unit-av av-iron"><img src="/ironram.png" alt="Iron-Ram"></span>
         <div class="unit-body"><div class="unit-name">Iron-Ram</div><div class="unit-ep">:8080 · search &amp; collect (+ MCP)</div></div>
         <span class="unit-count" data-count>0×</span>
         <span class="unit-state" data-state>idle</span>
@@ -325,7 +326,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
       <div id="unit-bruce" class="unit kind-a2a">
         <span class="dot"></span>
-        <span class="unit-av av-hulk">💪</span>
+        <span class="unit-av av-hulk"><img src="/brucebaaner.png" alt="Bruce Baaner"></span>
         <div class="unit-body"><div class="unit-name">Bruce Baaner</div><div class="unit-ep">:8081 · verify 6 stones &amp; snap</div></div>
         <span class="unit-count" data-count>0×</span>
         <span class="unit-state" data-state>idle</span>
