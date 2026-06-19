@@ -65,6 +65,11 @@
             <artifactId>langchain4j-agentic-a2a</artifactId>
             <version>1.17.0-beta27-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-agentic-patterns</artifactId>
+            <version>1.16.3-beta26</version>
+        </dependency>
     </dependencies>
 
     <build>

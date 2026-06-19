@@ -3,8 +3,11 @@ package be.lomagnette.a2a.wooly;
 import be.lomagnette.a2a.telemetry.MissionDashboard;
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.AgenticServices;
+import dev.langchain4j.agentic.declarative.K;
+import dev.langchain4j.agentic.declarative.TypedKey;
 import dev.langchain4j.agentic.observability.AgentMonitor;
 import dev.langchain4j.agentic.observability.HtmlReportGenerator;
+import dev.langchain4j.agentic.patterns.goap.GoalOrientedPlanner;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelErrorContext;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
@@ -34,6 +37,14 @@ public class MissionService {
             BaaNos just destroy half the universe using the infinity stones.
             The only way to reverse it is to quickly collect the infinity stones and snap it.
             """;
+    public static final String LLM_URL = "http://localhost:11434";
+    public static final String MODEL_NAME = "gemma4";
+    public static final String RESULT = "Result";
+
+    public static class ObjectToCollect implements TypedKey<String>{};
+    public static class Stones implements TypedKey<String>{};
+    public static class Mission implements TypedKey<String>{};
+
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final ExecutorService runner = Executors.newSingleThreadExecutor(r -> {
@@ -81,11 +92,11 @@ public class MissionService {
         };
 
         ChatModel model = OllamaChatModel.builder()
-                .baseUrl("http://localhost:11434")
+                .baseUrl(LLM_URL)
                 .temperature(0.0)
                 .logRequests(true)
                 .logResponses(true)
-                .modelName("gemma4")
+                .modelName(MODEL_NAME)
                 .listeners(List.of(dashboardListener))
                 .build();
 
@@ -94,31 +105,31 @@ public class MissionService {
         var nickWooly = AgenticServices
                 .agentBuilder(NickWooly.class)
                 .chatModel(model)
-                .outputKey("object")
+                .outputKey(ObjectToCollect.class)
                 .build();
 
         var ironRam = AgenticServices
                 .a2aBuilder("http://localhost:8080", IronRam.class)
-                .inputKeys("object")
-                .outputKey("stones")
+                .outputKey("Stones")
                 .build();
 
         var bruce = AgenticServices
                 .a2aBuilder("http://localhost:8081", Bruce.class)
-                .inputKeys("stones")
-                .outputKey("result")
+                .outputKey(RESULT)
                 .build();
 
-        var executeMission = AgenticServices.sequenceBuilder()
+        Avengers avengers = AgenticServices
+                .plannerBuilder(Avengers.class)
                 .subAgents(nickWooly, ironRam, bruce)
-                .outputKey("result")
+                .outputKey(RESULT)
+                .planner(GoalOrientedPlanner::new)
                 .listener(monitor)
                 .build();
 
         var missionSpan = MissionDashboard.mission("mission", "Restore the universe")
                 .input(MISSION).start();
         try {
-            Object result = executeMission.invoke(Map.of("mission", MISSION));
+            var result = avengers.assemble(MISSION);
             missionSpan.ok(String.valueOf(result));
             Log.info("Mission result: " + result);
         } catch (RuntimeException e) {
@@ -131,11 +142,16 @@ public class MissionService {
 
     public interface IronRam {
         @Agent
-        String collect(@V("object") String keywords);
+        String collect(@K(ObjectToCollect.class) String keywords);
     }
 
     public interface Bruce {
         @Agent
-        String snap(@V("stones") String stones);
+        String snap(@K(Stones.class) String stones);
+    }
+
+    public interface Avengers {
+        @Agent("Avenger assemble and restore the universe")
+        String assemble(@K(Mission.class) String mission);
     }
 }
