@@ -218,9 +218,11 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 /* local LLM: stays on the local lane, never crosses */
 .msg.local{align-self:flex-start;border-left:4px solid var(--c-llm);width:60%;}
 .msg.local .msg-head{color:var(--c-llm);}
-/* MCP: a remote-side sub-call */
+/* remote-internal activity (nested under the A2A agent, never crosses the boundary) */
+.msg.rthink{align-self:flex-end;width:52%;border-right:4px solid var(--c-llm);background:var(--panel2);}
+.msg.rthink .msg-head{color:var(--c-llm);}
 .msg.mcp{align-self:flex-end;width:48%;border-right:4px solid var(--c-mcp);background:var(--panel2);}
-.msg.mcp .msg-head{color:var(--c-mcp);} .msg.mcp .msg-arrow{left:-28px;color:var(--c-mcp);font-size:12px;}
+.msg.mcp .msg-head{color:var(--c-mcp);}
 
 /* event log */
 .log{font-family:ui-monospace,'Fira Code',monospace;font-size:13px;}
@@ -334,6 +336,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   <div class="legend">
     <span><i style="background:var(--c-llm)"></i> Local LLM agent</span>
     <span><i style="background:var(--c-a2a)"></i> Remote A2A agent</span>
+    <span><i style="background:var(--c-llm)"></i> Remote agent reasoning</span>
     <span><i style="background:var(--c-mcp)"></i> MCP tool call</span>
     <span><i style="background:var(--c-a2a)"></i> ▶ request (local → remote)</span>
     <span><i style="background:var(--ok)"></i> ◀ answer (remote → local)</span>
@@ -427,7 +430,8 @@ function setPlanner(status,text){ const p=$('planner'); setStatus(p,status); $('
 /* ---- the A2A wire ---- */
 function addMsg(cls, head, body, status){
   const feed=$('feed'); const empty=feed.querySelector('.feed-empty'); if(empty) empty.remove();
-  const arrow = cls==='req' ? '▶' : cls==='res' ? '◀' : cls==='mcp' ? '⚙' : '';
+  // only the genuine boundary crossings carry an arrow; reasoning/MCP are remote-internal
+  const arrow = cls==='req' ? '▶' : cls==='res' ? '◀' : '';
   const m=document.createElement('div');
   m.className='msg '+cls+(status==='error'?' error':'');
   m.innerHTML = `<div class="msg-head"><span class="msg-dir"></span><span class="msg-time">${nowStr()}</span></div>`+
@@ -542,9 +546,14 @@ function handle(e){
     }
 
     case 'tool-start':{
-      const parent=byKey[e.parent];
+      const parent=byKey[e.parent]; const pl=parent?parent.label:'remote';
       mcpStarts[e.id]=performance.now();
-      mcpMsgs[e.id]=addMsg('mcp', (parent?parent.label:'remote')+' ⚙ Garage MCP · '+(e.label||'tool'), e.detail);
+      if(e.kind==='llm'){
+        // the remote agent's own model reasoning — what it decided before calling tools
+        mcpMsgs[e.id]=addMsg('rthink', pl+' ⟲ '+(e.label||'reasoning')+' · server LLM', e.detail);
+      }else{
+        mcpMsgs[e.id]=addMsg('mcp', pl+' ⚙ Garage MCP · '+(e.label||'tool'), e.detail);
+      }
       break;
     }
     case 'tool-end':{

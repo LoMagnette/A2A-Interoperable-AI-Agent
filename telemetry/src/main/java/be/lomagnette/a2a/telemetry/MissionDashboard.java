@@ -89,6 +89,16 @@ public final class MissionDashboard {
         return new Span("tool", id, parent, label, "mcp", endpoint);
     }
 
+    /**
+     * A span for a remote agent's own LLM reasoning round, nested under
+     * {@code parent}. Emitted as a {@code tool} event (so it groups under the
+     * agent) but tagged {@code llm}, which lets the dashboard show what the
+     * agent's model decided <em>before</em> it issues its MCP tool calls.
+     */
+    public static Span reasoning(String id, String parent, String label, String endpoint) {
+        return new Span("tool", id, parent, label, "llm", endpoint);
+    }
+
     /** A span for the whole mission. */
     public static Span mission(String id, String label) {
         return new Span("mission", id, null, label, "orchestrator", null);
