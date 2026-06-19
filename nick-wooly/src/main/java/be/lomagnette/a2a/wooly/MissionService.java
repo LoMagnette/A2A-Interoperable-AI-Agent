@@ -12,17 +12,54 @@ import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.service.V;
+import io.quarkus.logging.Log;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Runs the "restore the universe" mission: Nick Wooly's LLM names the objects,
+ * Iron-Ram collects them over A2A (calling the Garage MCP tools), and Bruce
+ * snaps. Triggered on demand from the dashboard's launch button.
+ */
+@ApplicationScoped
+public class MissionService {
 
-public class Main {
-    void main() {
+    private static final String MISSION = """
+            BaaNos just destroy half the universe using the infinity stones.
+            The only way to reverse it is to quickly collect the infinity stones and snap it.
+            """;
 
-        var monitor = new AgentMonitor();
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final ExecutorService runner = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "mission-runner");
+        t.setDaemon(true);
+        return t;
+    });
 
+    /** Launch the mission in the background. Returns false if one is already running. */
+    public boolean launch() {
+        if (!running.compareAndSet(false, true)) {
+            return false;
+        }
+        runner.submit(() -> {
+            try {
+                runMission();
+            } catch (Exception e) {
+                Log.error("Mission failed", e);
+            } finally {
+                running.set(false);
+            }
+        });
+        return true;
+    }
+
+    private void runMission() {
         // Report Nick Wooly's LLM step (identifyMission) to the live dashboard.
         var nickSpan = MissionDashboard.llm("nickWooly", "Nick Wooly", "ollama/gemma4")
                 .input("Identifying which objects the mission needs");
@@ -52,6 +89,8 @@ public class Main {
                 .listeners(List.of(dashboardListener))
                 .build();
 
+        var monitor = new AgentMonitor();
+
         var nickWooly = AgenticServices
                 .agentBuilder(NickWooly.class)
                 .chatModel(model)
@@ -64,12 +103,11 @@ public class Main {
                 .outputKey("stones")
                 .build();
 
-         var bruce = AgenticServices
-                 .a2aBuilder("http://localhost:8081", Bruce.class)
-                 .inputKeys("stones")
-                 .outputKey("result")
-                 .build();
-
+        var bruce = AgenticServices
+                .a2aBuilder("http://localhost:8081", Bruce.class)
+                .inputKeys("stones")
+                .outputKey("result")
+                .build();
 
         var executeMission = AgenticServices.sequenceBuilder()
                 .subAgents(nickWooly, ironRam, bruce)
@@ -77,28 +115,21 @@ public class Main {
                 .listener(monitor)
                 .build();
 
-        String mission = """
-                BaaNos just destroy half the universe using the infinity stones.
-                The only way to reverse it is to quickly collect the infinity stones and snap it.
-                """;
-
         var missionSpan = MissionDashboard.mission("mission", "Restore the universe")
-                .input(mission).start();
-
-        Object invoke = executeMission.invoke(Map.of("mission", mission));
-        missionSpan.ok(String.valueOf(invoke));
-
-        System.out.println("-------- Mission results ---------");
-        System.out.println(invoke);
+                .input(MISSION).start();
+        try {
+            Object result = executeMission.invoke(Map.of("mission", MISSION));
+            missionSpan.ok(String.valueOf(result));
+            Log.info("Mission result: " + result);
+        } catch (RuntimeException e) {
+            missionSpan.error(String.valueOf(e.getMessage()));
+            throw e;
+        }
 
         HtmlReportGenerator.generateReport(monitor, Path.of("a2a-workflow.html"));
-
-        // Let the final dashboard events drain before the JVM exits.
-        MissionDashboard.flush();
     }
 
     public interface IronRam {
-
         @Agent
         String collect(@V("object") String keywords);
     }
@@ -107,5 +138,4 @@ public class Main {
         @Agent
         String snap(@V("stones") String stones);
     }
-
 }

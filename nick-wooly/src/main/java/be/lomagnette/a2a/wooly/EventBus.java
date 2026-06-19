@@ -1,4 +1,4 @@
-package be.lomagnette.a2a.dashboard;
+package be.lomagnette.a2a.wooly;
 
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;

@@ -40,8 +40,7 @@ into shape:
 | `iron-ram-garage/`   | Quarkus MCP server (SSE) — exposes the `Baarvis` and `collect` tools, owns the `KeyObject` Postgres table + `import.sql`. Port **8082**. |
 | `bruce-baaner/`      | Quarkus / LangChain4j A2A server — the snapper. Port **8081**.            |
 | `bruce_baaner.py`    | Python port of `bruce-baaner` using A2A SDK 1.0 (same behaviour, same port). |
-| `nick-wooly/`        | Orchestrator. Plain Java `main` that wires the two A2A servers together.  |
-| `dashboard/`         | Quarkus **live "Mission Control" dashboard** (SSE). Serves a real-time view of the whole call graph. Port **8090**. |
+| `nick-wooly/`        | Orchestrator **and** live "Mission Control" dashboard. Quarkus app: serves the real-time dashboard (SSE) and wires the two A2A servers; a **Launch mission** button runs the orchestration. Port **8090**. |
 | `telemetry/`         | Tiny fire-and-forget client (`MissionDashboard`) each module uses to report agent/tool activity to the dashboard. |
 | `pom.xml`            | Maven parent POM for all Java modules.                                     |
 | `requirements.txt`   | Python dependencies for `bruce_baaner.py`.                                 |
@@ -73,25 +72,10 @@ The MCP server and the two A2A servers must all be running **before** you
 launch Nick Wooly. Start them in this order so each downstream dependency is
 available when the next one boots.
 
-### 0. Mission Control dashboard (live view, port 8090) — optional but recommended
-
-Start this first and leave it running. It is a small Quarkus app that shows the
-whole mission unfold **in real time** — Nick Wooly's LLM step, the A2A hand-offs
-to Iron-Ram and Bruce, and every `Baarvis`/`collect` MCP tool call nested under
-Iron-Ram — streamed over Server-Sent Events. It has a light/dark toggle for use
-on a projector.
-
-```bash
-cd dashboard
-../mvnw quarkus:dev
-# then open http://localhost:8090/
-```
-
-Every other process reports to it best-effort via the `telemetry` module, so if
-the dashboard is **not** running the demo behaves exactly as before. Override the
-emitter target with `-Ddashboard.url=http://host:port` / `DASHBOARD_URL`, and the
-dashboard's own port with `-Dquarkus.http.port=...`. The dashboard survives many
-mission runs; each new run resets the view automatically.
+The **live "Mission Control" dashboard** is now part of **Nick Wooly** itself
+(step 4): it serves a real-time view at <http://localhost:8090/> and the mission
+is launched from a button in that page. Start the three back-end servers first,
+then Nick Wooly, then click **Launch mission**.
 
 ### 1. Iron-Ram Garage (MCP, port 8082)
 
@@ -160,21 +144,28 @@ Either way the agent card is at:
 > The Python port is a drop-in replacement for the Java server: same name,
 > same port, same skill, same response strings. Use whichever you prefer.
 
-### 4. Nick Wooly (orchestrator)
+### 4. Nick Wooly (orchestrator + dashboard, port 8090)
 
-With the MCP server and both A2A servers running:
+With the MCP server and both A2A servers running, start Nick Wooly as a Quarkus
+app and open the dashboard:
 
 ```bash
 cd nick-wooly
-../mvnw compile exec:java -Dexec.mainClass=be.lomagnette.a2a.wooly.Main
+../mvnw quarkus:dev
+# then open http://localhost:8090/
 ```
 
-Nick Wooly will:
-1. Ask its LLM what object the mission requires.
+Click **Launch mission** in the page. Nick Wooly will:
+1. Ask its LLM what objects the mission requires.
 2. Hand that off to Iron-Ram over A2A → Iron-Ram calls the garage's MCP tools
    to find and collect each object, then returns the JSON list of stones.
 3. Hand the stones to Bruce Baaner over A2A → receives the snap result.
-4. Print the final mission result to stdout.
+4. Stream every step live to the dashboard (and write `a2a-workflow.html`).
+
+The whole call graph — the LLM step, the A2A hand-offs, and each `Baarvis`/`collect`
+MCP tool call nested under Iron-Ram — lights up in real time over Server-Sent
+Events. The page has a light/dark toggle for use on a projector, and you can
+re-run the mission as many times as you like; each run resets the view.
 
 > `nick-wooly` currently depends on `langchain4j-agentic-a2a:1.16.0-beta26-SNAPSHOT`.
 > On may 2026, you need to build your own version of this module that use the latest version A2A client (in your `~/.m2/settings.xml`

@@ -1,4 +1,4 @@
-package be.lomagnette.a2a.dashboard;
+package be.lomagnette.a2a.wooly;
 
 import io.smallrye.mutiny.Multi;
 import jakarta.inject.Inject;
@@ -8,6 +8,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
 /**
@@ -19,6 +20,9 @@ public class DashboardResource {
 
     @Inject
     EventBus bus;
+
+    @Inject
+    MissionService mission;
 
     /** Live event feed consumed by the dashboard's EventSource. */
     @GET
@@ -37,6 +41,15 @@ public class DashboardResource {
         if (event != null && !event.isBlank()) {
             bus.publish(event.trim());
         }
+    }
+
+    /** Launch the mission in the background (triggered by the dashboard button). */
+    @POST
+    @Path("launch")
+    public Response launch() {
+        return mission.launch()
+                ? Response.accepted().build()
+                : Response.status(Response.Status.CONFLICT).build();
     }
 
     /** Clear the current run. */
