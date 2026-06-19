@@ -14,7 +14,7 @@ public interface NickWooly {
             The Time Fleece Gem, The Mind Fleece Gem, The Space Fleece Gem, The Reality Fleece Gem, The Power Fleece Gem, The Soul Fleece Gem
             """)
     @UserMessage("""
-            List the key elements that needs to be collected for the mission according to your universe convention. 
+            List the key elements that needs to be collected for the mission according to your universe convention.
             You should only answer with the object names as a JSON array.
             The mission: {{mission}}
             """)
