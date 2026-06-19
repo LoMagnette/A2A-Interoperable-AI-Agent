@@ -39,9 +39,9 @@ public class MissionService {
     public static final String MODEL_NAME = "gemma4";
     public static final String RESULT = "Result";
 
-    public static class ObjectToCollect implements TypedKey<String>{};
-    public static class Stones implements TypedKey<String>{};
-    public static class Mission implements TypedKey<String>{};
+    public static class ObjectToCollect implements TypedKey<String>{}
+    public static class Stones implements TypedKey<String>{}
+    public static class Mission implements TypedKey<String>{}
 
 
     private final AtomicBoolean running = new AtomicBoolean(false);

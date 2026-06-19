@@ -26,7 +26,7 @@ public class EventBus {
         }
         buffer.add(event);
         while (buffer.size() > MAX_BUFFER) {
-            buffer.remove(0);
+            buffer.removeFirst();
         }
         processor.onNext(event);
     }
