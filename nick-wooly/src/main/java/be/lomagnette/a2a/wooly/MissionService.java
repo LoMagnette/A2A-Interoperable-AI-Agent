@@ -14,13 +14,11 @@ import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
 import dev.langchain4j.model.ollama.OllamaChatModel;
-import dev.langchain4j.service.V;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,8 +69,10 @@ public class MissionService {
     }
 
     private void runMission() {
-        // Report Nick Wooly's LLM step (identifyMission) to the live dashboard.
-        var nickSpan = MissionDashboard.llm("nickWooly", "Nick Wooly", "ollama/gemma4")
+        // Nick Wooly's LLM runs locally, in this orchestrator process. A chat
+        // model listener reports its request/response to Mission Control without
+        // touching the orchestration code below.
+        var nickSpan = MissionDashboard.llm("nickWooly", "Nick Wooly", "ollama/" + MODEL_NAME)
                 .input("Identifying which objects the mission needs");
         ChatModelListener dashboardListener = new ChatModelListener() {
             @Override

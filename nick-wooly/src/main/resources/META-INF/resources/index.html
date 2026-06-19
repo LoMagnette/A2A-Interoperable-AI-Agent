@@ -17,37 +17,28 @@
 </script>
 <style>
 :root{
-  /* ===== Avengers brand ===== */
-  /* red = Avengers/Iron-Ram · red-dk = navbar base · gold = Iron Man / arc accents */
   --red:#e23636; --red-dk:#7a1216; --gold:#f0a500;
-  /* status accents */
   --run:#3b82f6; --ok:#22c55e; --err:#ef4444; --grey:#64748b;
-  /* node-kind colors — Nick Fury gold · Iron-Ram red · Garage arc-reactor cyan */
-  --c-llm:#e0a800; --c-a2a:#e23636; --c-mcp:#22c7d6;
-  /* dark surfaces (default) — deep space / S.H.I.E.L.D. helicarrier night */
+  --c-llm:#e0a800; --c-a2a:#e23636; --c-mcp:#22c7d6; --c-goap:#f0a500;
   --bg:#0a0e1a; --panel:#121a2b; --panel2:#1b2740; --brd:#2c3a57;
   --fg:#eef3fb; --fg2:#b9c6dd; --fg3:#7e8eab;
   --hairline:rgba(255,255,255,.07);
-  /* status badges */
   --badge-idle-bg:#24304a; --badge-idle-fg:#b9c6dd;
   --badge-run-bg:#1e3a5f;  --badge-run-fg:#9ecbff;
   --badge-ok-bg:#10422a;   --badge-ok-fg:#76e6ab;
   --badge-err-bg:#4a1d1d;  --badge-err-fg:#ff9b9b;
-  /* event-log colors */
   --log-start:#7cc0ff; --log-ok:#5bd99a; --log-err:#ff8b8b; --log-tool:#7be3ec;
   --shadow:0 4px 18px rgba(0,0,0,.45);
   --drawer-shadow:0 -12px 40px rgba(0,0,0,.6);
   --rad:11px;
-  /* cinematic display + body fonts */
   --display:'Saira Condensed','Oswald','Arial Narrow',Impact,sans-serif;
   --body:'Saira',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  /* hero signature colors */
   --h-fury:#8a93a8; --h-iron:#e23636; --h-iron-gold:#f0a500; --h-hulk:#4caf3d; --h-hulk-2:#7e57c2;
 }
 :root[data-theme="light"]{
   --red:#d81f26; --red-dk:#9e1418; --gold:#c8860a;
   --run:#2563eb; --ok:#0f9d58; --err:#dc2626;
-  --c-llm:#b8860b; --c-a2a:#d81f26; --c-mcp:#0e8fa0;
+  --c-llm:#b8860b; --c-a2a:#d81f26; --c-mcp:#0e8fa0; --c-goap:#c8860a;
   --bg:#eceff5; --panel:#ffffff; --panel2:#eff3f9; --brd:#d3dce8;
   --fg:#12203a; --fg2:#3a4c66; --fg3:#5f7290;
   --hairline:rgba(15,30,55,.09);
@@ -60,10 +51,8 @@
   --drawer-shadow:0 -12px 40px rgba(30,50,70,.20);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:var(--body);
-     background:var(--bg);color:var(--fg);line-height:1.55;min-height:100vh;font-size:15px;
-     transition:background .25s,color .25s;position:relative;}
-/* cinematic backdrop: nebula glows + starfield (dark), faint tech wash (light) */
+body{font-family:var(--body);background:var(--bg);color:var(--fg);line-height:1.55;min-height:100vh;
+     font-size:15px;transition:background .25s,color .25s;position:relative;}
 body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
     radial-gradient(900px 600px at 12% -10%, rgba(226,54,54,.16), transparent 60%),
@@ -99,8 +88,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .theme-btn:hover{background:rgba(255,255,255,.32);}
 .launch-btn{background:var(--gold);color:#2a1500;border:none;border-radius:9px;height:36px;
             font-family:var(--display);font-size:16px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
-            padding:0 18px;cursor:pointer;transition:.15s;white-space:nowrap;
-            box-shadow:0 0 14px rgba(240,165,0,.5);}
+            padding:0 18px;cursor:pointer;transition:.15s;white-space:nowrap;box-shadow:0 0 14px rgba(240,165,0,.5);}
 .launch-btn:hover{background:#ffc233;box-shadow:0 0 20px rgba(240,165,0,.75);}
 .launch-btn:disabled{opacity:.55;cursor:not-allowed;}
 .conn{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;
@@ -113,8 +101,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* mission banner */
 .mission{background:var(--panel);border:1px solid var(--brd);border-radius:var(--rad);
-         padding:18px 22px;margin-bottom:24px;display:flex;gap:20px;align-items:center;
-         box-shadow:var(--shadow);}
+         padding:18px 22px;margin-bottom:22px;display:flex;gap:20px;align-items:center;box-shadow:var(--shadow);}
 .mission-icon{font-size:38px;line-height:1;filter:drop-shadow(0 2px 6px rgba(240,165,0,.45));}
 .mission-body{flex:1;min-width:0;}
 .mission-label{font-family:var(--display);font-size:13px;text-transform:uppercase;letter-spacing:2.5px;
@@ -129,83 +116,111 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .b-ok{background:var(--badge-ok-bg);color:var(--badge-ok-fg);}
 .b-err{background:var(--badge-err-bg);color:var(--badge-err-fg);}
 
-.graph{max-width:880px;margin:0 auto;}
 .panel-title{font-family:var(--display);font-size:15px;text-transform:uppercase;letter-spacing:2.5px;
-             color:var(--fg2);font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+             color:var(--fg2);font-weight:800;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
 .panel-title::before{content:'';width:16px;height:3px;border-radius:2px;
              background:linear-gradient(90deg,var(--red),var(--gold));}
+.panel-title small{font-family:var(--body);font-size:12px;letter-spacing:.4px;text-transform:none;
+                   color:var(--fg3);font-weight:600;}
+
+.dot{width:12px;height:12px;border-radius:50%;background:var(--grey);flex-shrink:0;}
+.st-running .dot{background:var(--run);animation:pulse 1.2s infinite;}
+.st-ok .dot{background:var(--ok);}
+.st-error .dot{background:var(--err);}
+.tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:5px;color:#fff;}
+.tag-llm{background:var(--c-llm);} .tag-a2a{background:var(--c-a2a);} .tag-mcp{background:var(--c-mcp);}
+.tag-goap{background:var(--c-goap);color:#2a1500;}
+
+/* ===== local ⇄ remote board ===== */
+.board{display:grid;grid-template-columns:1fr 60px 1fr;align-items:start;margin-bottom:8px;}
+.side{min-width:0;}
+.side-head{font-family:var(--display);font-size:15px;text-transform:uppercase;letter-spacing:2px;
+           font-weight:800;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.side.local .side-head{color:var(--c-llm);justify-content:flex-start;}
+.side.remote .side-head{color:var(--c-a2a);justify-content:flex-end;text-align:right;}
+.side-head .pin{font-family:ui-monospace,monospace;font-size:11px;color:var(--fg3);letter-spacing:.3px;text-transform:none;font-weight:600;}
+
+/* the A2A boundary that messages cross */
+.boundary{align-self:stretch;display:flex;align-items:center;justify-content:center;position:relative;min-height:160px;}
+.boundary::before{content:'';position:absolute;top:0;bottom:0;width:2px;
+   background:repeating-linear-gradient(to bottom,var(--c-a2a) 0 7px,transparent 7px 15px);opacity:.45;}
+.boundary span{writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--display);font-size:11px;
+   letter-spacing:3px;text-transform:uppercase;color:var(--c-a2a);font-weight:800;background:var(--bg);
+   padding:9px 1px;z-index:1;border-radius:6px;}
+
+/* an agent "unit" card living on one side */
+.unit{background:var(--panel);border:1px solid var(--brd);border-left:4px solid var(--grey);border-radius:10px;
+      padding:11px 13px;display:flex;align-items:center;gap:11px;margin-bottom:12px;opacity:.58;
+      transition:opacity .2s,box-shadow .2s,transform .2s;box-shadow:var(--shadow);}
+.side.remote .unit{border-left:none;border-right:4px solid var(--grey);flex-direction:row-reverse;text-align:right;}
+.unit.kind-llm{border-left-color:var(--c-llm);}
+.unit.kind-a2a{border-right-color:var(--c-a2a);}
+.unit.kind-goap{border-left-color:var(--c-goap);}
+.unit.used{opacity:1;}
+.unit.active{opacity:1;box-shadow:0 0 0 2px var(--run),var(--shadow);transform:translateY(-2px);}
+.unit-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+         font-size:18px;flex-shrink:0;border:1px solid var(--hairline);}
+.av-nick{background:linear-gradient(135deg,#3a4252,#11151f);box-shadow:0 0 10px rgba(138,147,168,.5);}
+.av-iron{background:radial-gradient(circle at 50% 40%,#9fe9ff,#2bb8d6 45%,#0d2030);box-shadow:0 0 12px rgba(43,200,214,.6);}
+.av-hulk{background:linear-gradient(135deg,var(--h-hulk),var(--h-hulk-2));box-shadow:0 0 10px rgba(76,175,61,.55);}
+.av-goap{background:radial-gradient(circle at 50% 35%,#ffd97a,#f0a500 55%,#5b3d00);box-shadow:0 0 12px rgba(240,165,0,.6);}
+.unit-body{min-width:0;flex:1;}
+.unit-name{font-family:var(--display);font-size:17px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;line-height:1.1;}
+.unit-ep{font-size:11px;color:var(--fg3);font-family:ui-monospace,monospace;}
+.unit-state{font-family:ui-monospace,monospace;font-size:12px;font-weight:700;color:var(--fg3);flex-shrink:0;}
+.unit.active .unit-state{color:var(--run);}
+.unit.st-ok .unit-state{color:var(--ok);} .unit.st-error .unit-state{color:var(--err);}
+.unit-count{font-family:ui-monospace,monospace;font-size:11px;font-weight:800;color:var(--fg2);
+            background:var(--panel2);border:1px solid var(--brd);border-radius:10px;padding:1px 7px;flex-shrink:0;}
+
+/* GOAP planner brain (a block-style unit) */
+.unit.planner{display:block;background:linear-gradient(135deg,var(--panel2),var(--panel));}
+.planner-top{display:flex;align-items:center;gap:10px;}
+.planner-state{margin-left:auto;font-family:ui-monospace,monospace;font-size:13px;font-weight:800;color:var(--c-goap);}
+.planner.st-ok .planner-state{color:var(--ok);} .planner.st-error .planner-state{color:var(--err);}
+.planner-note{font-size:12.5px;color:var(--fg3);margin-top:9px;line-height:1.5;}
+.planner-goal{font-size:12.5px;color:var(--fg2);margin-top:7px;padding:6px 10px;background:var(--panel2);
+              border:1px solid var(--brd);border-radius:7px;white-space:pre-wrap;display:none;}
+.planner-goal.show{display:block;}
 
 /* legend */
-.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:22px;font-size:13px;color:var(--fg2);
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:20px 0 18px;font-size:13px;color:var(--fg2);
         background:var(--panel);border:1px solid var(--brd);border-radius:var(--rad);padding:11px 18px;}
 .legend span{display:flex;align-items:center;gap:7px;font-weight:600;}
 .legend i{width:13px;height:13px;border-radius:4px;display:inline-block;}
 
-/* flow pipeline */
-.flow{display:flex;flex-direction:column;gap:0;}
-.connector{height:30px;width:3px;background:var(--brd);margin-left:31px;position:relative;
-           transition:.3s;border-radius:2px;}
-.connector.active{background:var(--gold);box-shadow:0 0 10px var(--gold);}
-.connector.active::after{content:'';position:absolute;left:-3.5px;top:0;width:10px;height:10px;
-   border-radius:50%;background:var(--gold);animation:flow 1.1s linear infinite;}
-@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:28px;opacity:0}}
-
-.node{background:var(--panel);border:1px solid var(--brd);border-radius:var(--rad);
-      padding:16px 18px;border-left:5px solid var(--grey);transition:.25s;position:relative;
-      box-shadow:var(--shadow);}
-.node.kind-llm{border-left-color:var(--c-llm);}
-.node.kind-a2a{border-left-color:var(--c-a2a);}
-.node.st-running{border-color:var(--run);box-shadow:0 0 0 2px var(--run),0 6px 22px rgba(59,130,246,.22);}
-.node.st-ok{border-left-color:var(--ok);}
-.node.st-error{border-color:var(--err);border-left-color:var(--err);}
-
-/* ===== per-hero signatures (resting state; status colors still override) ===== */
-/* Nick Wooly = Nick Fury — steel grey command */
-#node-nickWooly{border-left-color:var(--h-fury);}
-#node-nickWooly .node-avatar{background:linear-gradient(135deg,#3a4252,#11151f);box-shadow:0 0 12px rgba(138,147,168,.5);}
-/* Iron-Ram = Iron Man — red armor, arc-reactor avatar */
-#node-ironRam{border-left-color:var(--h-iron);}
-#node-ironRam .node-avatar{background:radial-gradient(circle at 50% 40%,#9fe9ff,#2bb8d6 45%,#0d2030);
-                           box-shadow:0 0 14px rgba(43,200,214,.7);}
-/* Bruce Baaner = Hulk — gamma green→purple */
-#node-bruce{border-left-color:var(--h-hulk);}
-#node-bruce .node-avatar{background:linear-gradient(135deg,var(--h-hulk),var(--h-hulk-2));
-                         box-shadow:0 0 12px rgba(76,175,61,.55);}
-
-.node-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.node-avatar{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
-             font-size:20px;flex-shrink:0;border:1px solid var(--hairline);}
-.dot{width:13px;height:13px;border-radius:50%;background:var(--grey);flex-shrink:0;}
-.st-running .dot{background:var(--run);animation:pulse 1.2s infinite;}
-.st-ok .dot{background:var(--ok);}
-.st-error .dot{background:var(--err);}
-.node-name{font-family:var(--display);font-size:23px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;}
-.tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
-     padding:3px 9px;border-radius:5px;color:#fff;}
-.tag-llm{background:var(--c-llm);} .tag-a2a{background:var(--c-a2a);} .tag-mcp{background:var(--c-mcp);}
-.node-ep{font-size:13px;color:var(--fg3);font-family:ui-monospace,monospace;}
-.node-dur{margin-left:auto;font-family:ui-monospace,monospace;font-size:15px;font-weight:700;
-          color:var(--fg2);font-variant-numeric:tabular-nums;}
-.node-detail{font-size:14px;color:var(--fg2);margin-top:10px;background:var(--panel2);
-             border:1px solid var(--brd);border-radius:7px;padding:9px 12px;max-height:96px;
-             overflow:auto;white-space:pre-wrap;word-break:break-word;display:none;}
-.node-detail.show{display:block;}
-
-/* MCP children */
-.mcp-wrap{margin-top:14px;display:none;}
-.mcp-wrap.show{display:block;}
-.mcp-head{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--c-mcp);
-          font-weight:800;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
-.mcp-row{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:8px;
-         background:var(--panel2);margin-bottom:7px;border:1px solid var(--brd);
-         border-left:4px solid var(--c-mcp);}
-.mcp-row .dot{width:11px;height:11px;}
-.mcp-row.st-running{box-shadow:0 0 0 2px var(--c-mcp);}
-.mcp-name{font-size:15px;font-weight:700;}
-.mcp-detail{font-size:13px;color:var(--fg3);font-family:ui-monospace,monospace;
-            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
-.mcp-dur{font-family:ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--fg2);
-         margin-left:auto;font-variant-numeric:tabular-nums;}
+/* ===== A2A wire — the exchange crossing the boundary ===== */
+.feed{position:relative;display:flex;flex-direction:column;gap:13px;padding:6px 0;}
+.feed::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;transform:translateX(-1px);
+   background:repeating-linear-gradient(to bottom,var(--brd) 0 8px,transparent 8px 16px);}
+.feed-empty{color:var(--fg3);font-style:italic;padding:24px;text-align:center;
+            border:1px dashed var(--brd);border-radius:var(--rad);background:var(--panel);}
+.msg{width:56%;background:var(--panel);border:1px solid var(--brd);border-radius:10px;padding:10px 13px;
+     box-shadow:var(--shadow);position:relative;animation:rise .25s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;margin-bottom:7px;
+          text-transform:uppercase;letter-spacing:.4px;}
+.msg-time{margin-left:auto;font-family:ui-monospace,monospace;font-size:11px;color:var(--fg3);font-weight:600;letter-spacing:0;text-transform:none;}
+.msg-body{font-size:13px;font-family:ui-monospace,monospace;color:var(--fg2);white-space:pre-wrap;word-break:break-word;
+          max-height:160px;overflow:auto;background:var(--panel2);border:1px solid var(--brd);border-radius:7px;padding:8px 11px;}
+.msg-arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:15px;font-weight:900;}
+/* request: leaves LOCAL (left), crosses to remote */
+.msg.req{align-self:flex-start;border-left:4px solid var(--c-a2a);}
+.msg.req .msg-head{color:var(--c-a2a);}
+.msg.req .msg-arrow{right:-30px;color:var(--c-a2a);}
+.msg.req.pending{opacity:.96;} .msg.req.pending .msg-arrow{animation:nudge 1s ease-in-out infinite;}
+@keyframes nudge{0%,100%{margin-right:0}50%{margin-right:-6px}}
+/* answer: returns from REMOTE (right), crosses back to local */
+.msg.res{align-self:flex-end;border-right:4px solid var(--ok);}
+.msg.res .msg-head{color:var(--ok);}
+.msg.res .msg-arrow{left:-30px;color:var(--ok);}
+.msg.res.error{border-right-color:var(--err);} .msg.res.error .msg-head{color:var(--err);} .msg.res.error .msg-arrow{color:var(--err);}
+/* local LLM: stays on the local lane, never crosses */
+.msg.local{align-self:flex-start;border-left:4px solid var(--c-llm);width:60%;}
+.msg.local .msg-head{color:var(--c-llm);}
+/* MCP: a remote-side sub-call */
+.msg.mcp{align-self:flex-end;width:48%;border-right:4px solid var(--c-mcp);background:var(--panel2);}
+.msg.mcp .msg-head{color:var(--c-mcp);} .msg.mcp .msg-arrow{left:-28px;color:var(--c-mcp);font-size:12px;}
 
 /* event log */
 .log{font-family:ui-monospace,'Fira Code',monospace;font-size:13px;}
@@ -217,32 +232,27 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .log-msg{color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .log-empty{color:var(--fg3);font-style:italic;padding:8px 0;}
 
-/* ---- bottom drawer (event stream) ---- */
+/* bottom drawer */
 .drawer{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--panel);
         border-top:1px solid var(--brd);box-shadow:var(--drawer-shadow);
         transform:translateY(calc(100% - 52px));transition:transform .3s cubic-bezier(.4,0,.2,1);}
 .drawer.open{transform:translateY(0);}
-.drawer-handle{height:52px;display:flex;align-items:center;gap:12px;padding:0 24px;
-               cursor:pointer;user-select:none;}
+.drawer-handle{height:52px;display:flex;align-items:center;gap:12px;padding:0 24px;cursor:pointer;user-select:none;}
 .drawer-handle:hover{background:var(--panel2);}
-.drawer-grip{width:38px;height:4px;border-radius:3px;background:var(--brd);
-             position:absolute;top:8px;left:50%;transform:translateX(-50%);}
+.drawer-grip{width:38px;height:4px;border-radius:3px;background:var(--brd);position:absolute;top:8px;left:50%;transform:translateX(-50%);}
 .drawer-title{font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:var(--fg2);font-weight:800;}
-.drawer-latest{font-size:13px;color:var(--fg3);font-family:ui-monospace,monospace;
-               overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.drawer-latest{font-size:13px;color:var(--fg3);font-family:ui-monospace,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
 .drawer.open .drawer-latest{visibility:hidden;}
 .drawer-chevron{color:var(--fg3);transition:transform .3s;flex-shrink:0;}
 .drawer.open .drawer-chevron{transform:rotate(180deg);}
 .drawer-body{height:min(48vh,460px);overflow:auto;border-top:1px solid var(--brd);padding:14px 24px 22px;}
 .drawer-foot{font-size:12px;color:var(--fg3);margin-top:14px;text-align:center;}
-.count{background:var(--panel2);color:var(--fg2);border:1px solid var(--brd);border-radius:11px;
-       padding:2px 10px;font-size:12px;font-weight:700;}
+.count{background:var(--panel2);color:var(--fg2);border:1px solid var(--brd);border-radius:11px;padding:2px 10px;font-size:12px;font-weight:700;}
 </style>
 </head>
 <body>
 <nav class="navbar">
   <div class="navbar-logo">
-    <!-- Avengers "A" with the breakout arrow -->
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10.5" stroke="#fff" stroke-width="1.6"/>
       <path d="M6 18 L12 5 L18 18" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -251,13 +261,11 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   </div>
   <div>
     <div class="navbar-title">Mission Control · Avengers Initiative</div>
-    <div class="navbar-sub">A2A protocol + MCP · live agent orchestration</div>
+    <div class="navbar-sub">Local orchestrator ⇄ Remote A2A services · live exchange</div>
   </div>
   <div class="spacer"></div>
   <button id="launchBtn" class="launch-btn" onclick="launchMission()">⚡ Assemble</button>
-  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle light / dark">
-    <span id="themeIcon">☀️</span>
-  </button>
+  <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle light / dark"><span id="themeIcon">☀️</span></button>
   <div class="conn"><span id="connDot" class="conn-dot"></span><span id="connText">connecting…</span></div>
 </nav>
 
@@ -274,66 +282,70 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     </div>
   </div>
 
-  <div class="legend">
-    <span><i style="background:var(--c-llm)"></i> LLM (orchestrator)</span>
-    <span><i style="background:var(--c-a2a)"></i> A2A agent</span>
-    <span><i style="background:var(--c-mcp)"></i> MCP tool call</span>
+  <!-- LOCAL  |  A2A boundary  |  REMOTE -->
+  <div class="board">
+    <div class="side local">
+      <div class="side-head">🖥️ Local <span class="pin">· orchestrator @ :8090</span></div>
+
+      <div id="planner" class="unit planner kind-goap used">
+        <div class="planner-top">
+          <span class="dot" id="plannerDot"></span>
+          <span class="unit-av av-goap">🧠</span>
+          <span class="unit-name">GOAP Planner</span>
+          <span class="tag tag-goap">Goal-oriented</span>
+          <span id="plannerState" class="planner-state">idle</span>
+        </div>
+        <div class="planner-note">Reads the goal state and picks the next agent at runtime — the exchange below is the order it actually chose, not a fixed pipeline. An agent may run more than once or not at all.</div>
+        <div id="plannerGoal" class="planner-goal"></div>
+      </div>
+
+      <div id="unit-nickWooly" class="unit kind-llm">
+        <span class="dot"></span>
+        <span class="unit-av av-nick">🕶️</span>
+        <div class="unit-body"><div class="unit-name">Nick Wooly</div><div class="unit-ep">ollama/gemma4 · in-process LLM</div></div>
+        <span class="unit-count" data-count>0×</span>
+        <span class="unit-state" data-state>idle</span>
+      </div>
+    </div>
+
+    <div class="boundary"><span>A2A protocol</span></div>
+
+    <div class="side remote">
+      <div class="side-head">🛰️ Remote <span class="pin">· A2A services</span></div>
+
+      <div id="unit-ironRam" class="unit kind-a2a">
+        <span class="dot"></span>
+        <span class="unit-av av-iron">🤖</span>
+        <div class="unit-body"><div class="unit-name">Iron-Ram</div><div class="unit-ep">:8080 · search &amp; collect (+ MCP)</div></div>
+        <span class="unit-count" data-count>0×</span>
+        <span class="unit-state" data-state>idle</span>
+      </div>
+
+      <div id="unit-bruce" class="unit kind-a2a">
+        <span class="dot"></span>
+        <span class="unit-av av-hulk">💪</span>
+        <div class="unit-body"><div class="unit-name">Bruce Baaner</div><div class="unit-ep">:8081 · verify 6 stones &amp; snap</div></div>
+        <span class="unit-count" data-count>0×</span>
+        <span class="unit-state" data-state>idle</span>
+      </div>
+    </div>
   </div>
 
-  <div class="graph">
-      <div class="panel-title">Call graph</div>
-      <div class="flow">
-        <!-- Nick Wooly -->
-        <div id="node-nickWooly" class="node kind-llm">
-          <div class="node-top">
-            <span class="dot"></span>
-            <span class="node-avatar" title="Director Fury — orchestrator">🕶️</span>
-            <span class="node-name">Nick Wooly</span>
-            <span class="tag tag-llm">LLM</span>
-            <span class="node-ep">identifyMission · ollama/gemma4</span>
-            <span class="node-dur" data-dur></span>
-          </div>
-          <div class="node-detail" data-detail></div>
-        </div>
+  <div class="legend">
+    <span><i style="background:var(--c-llm)"></i> Local LLM agent</span>
+    <span><i style="background:var(--c-a2a)"></i> Remote A2A agent</span>
+    <span><i style="background:var(--c-mcp)"></i> MCP tool call</span>
+    <span><i style="background:var(--c-a2a)"></i> ▶ request (local → remote)</span>
+    <span><i style="background:var(--ok)"></i> ◀ answer (remote → local)</span>
+  </div>
 
-        <div id="conn-1" class="connector"></div>
-
-        <!-- Iron-Ram + MCP children -->
-        <div id="node-ironRam" class="node kind-a2a">
-          <div class="node-top">
-            <span class="dot"></span>
-            <span class="node-avatar" title="Iron-Ram — armored search">🤖</span>
-            <span class="node-name">Iron-Ram</span>
-            <span class="tag tag-a2a">A2A :8080</span>
-            <span class="node-ep">search &amp; collect loop</span>
-            <span class="node-dur" data-dur></span>
-          </div>
-          <div class="node-detail" data-detail></div>
-          <div id="mcp-wrap" class="mcp-wrap">
-            <div class="mcp-head">⚙ Garage MCP :8082 — tool calls <span id="mcpCount" style="color:var(--fg3)"></span></div>
-            <div id="mcpList"></div>
-          </div>
-        </div>
-
-        <div id="conn-2" class="connector"></div>
-
-        <!-- Bruce -->
-        <div id="node-bruce" class="node kind-a2a">
-          <div class="node-top">
-            <span class="dot"></span>
-            <span class="node-avatar" title="Bruce Baaner — gamma verifier">💪</span>
-            <span class="node-name">Bruce Baaner</span>
-            <span class="tag tag-a2a">A2A :8081</span>
-            <span class="node-ep">verify 6 stones &amp; snap</span>
-            <span class="node-dur" data-dur></span>
-          </div>
-          <div class="node-detail" data-detail></div>
-        </div>
-      </div>
+  <div class="panel-title">A2A exchange <small>· message/send ▶ crosses the boundary, ◀ task artifact comes back — in planner order</small></div>
+  <div id="feed" class="feed">
+    <div class="feed-empty">Waiting for the planner to send its first message…</div>
   </div>
 </div>
 
-<!-- Event stream: collapsed drawer that slides up from the bottom -->
+<!-- Event stream: collapsed drawer -->
 <div id="drawer" class="drawer">
   <div class="drawer-handle" onclick="toggleDrawer()">
     <div class="drawer-grip"></div>
@@ -350,13 +362,27 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 </div>
 
 <script>
-const FIXED = ['nickWooly','ironRam','bruce'];
-const starts = {};            // node id -> performance.now() at start
-const mcpStarts = {};         // mcp id -> start time
-let missionStart = null, missionRunning = false, timerHandle = null;
+/* ===== who lives where ===== */
+const AGENTS = [
+  {key:'nickWooly', label:'Nick Wooly',   kind:'llm', side:'local',  ep:'ollama/gemma4', av:'av-nick'},
+  {key:'ironRam',   label:'Iron-Ram',     kind:'a2a', side:'remote', ep:':8080',         av:'av-iron'},
+  {key:'bruce',     label:'Bruce Baaner', kind:'a2a', side:'remote', ep:':8081',         av:'av-hulk'},
+];
+const byLabel = {}, byKey = {};
+AGENTS.forEach(a=>{byLabel[a.label]=a; byKey[a.key]=a;});
+function agentFor(e){
+  if(e.id && byKey[e.id]) return byKey[e.id];
+  if(e.label && byLabel[e.label]) return byLabel[e.label];
+  return {key:e.id||'?', label:e.label||e.id||'agent', kind:e.kind||'a2a', side:'remote', ep:e.endpoint||'', av:'av-iron'};
+}
+
+const counts = {};          // key -> invocation count
+const mcpStarts = {};       // mcp id -> start time
+const mcpMsgs = {};         // mcp id -> message element
+let missionStart=null, missionRunning=false, timerHandle=null, logN=0;
 
 function $(id){return document.getElementById(id);}
-function nodeEl(id){return $('node-'+id);}
+function nowStr(){const d=new Date();return d.toLocaleTimeString('en-GB',{hour12:false})+'.'+String(d.getMilliseconds()).padStart(3,'0');}
 
 /* ---- theme ---- */
 function updateThemeIcon(){
@@ -367,157 +393,166 @@ function updateThemeIcon(){
 function toggleTheme(){
   var next = document.documentElement.getAttribute('data-theme')==='light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('mc-theme', next);
-  updateThemeIcon();
+  localStorage.setItem('mc-theme', next); updateThemeIcon();
 }
 
-function setStatus(el,status){
-  el.classList.remove('st-running','st-ok','st-error');
-  if(status) el.classList.add('st-'+status);
+function setStatus(el,status){ el.classList.remove('st-running','st-ok','st-error'); if(status) el.classList.add('st-'+status); }
+function fmt(ms){ if(ms==null) return ''; return ms<1000 ? Math.round(ms)+'ms' : (ms/1000).toFixed(1)+'s'; }
+
+/* ---- agent units on the two sides ---- */
+function setUnit(key,phase,label){
+  const el=$('unit-'+key); if(!el) return;
+  el.classList.add('used');
+  el.classList.toggle('active', phase==='active');
+  setStatus(el, phase==='active'?'running':phase);
+  const s=el.querySelector('[data-state]'); if(s) s.textContent = label || (phase==='active'?'working…':phase==='error'?'failed':phase==='ok'?'done':'idle');
 }
-function fmt(ms){
-  if(ms==null) return '';
-  if(ms<1000) return Math.round(ms)+'ms';
-  return (ms/1000).toFixed(1)+'s';
+function bumpCount(key){
+  counts[key]=(counts[key]||0)+1;
+  const el=$('unit-'+key); if(el){ const c=el.querySelector('[data-count]'); if(c) c.textContent=counts[key]+'×'; }
+}
+function resetUnits(){
+  AGENTS.forEach(a=>{
+    counts[a.key]=0;
+    const el=$('unit-'+a.key); if(!el) return;
+    el.classList.remove('active','used'); setStatus(el,null);
+    const s=el.querySelector('[data-state]'); if(s) s.textContent='idle';
+    const c=el.querySelector('[data-count]'); if(c) c.textContent='0×';
+  });
+}
+
+/* ---- GOAP planner brain ---- */
+function setPlanner(status,text){ const p=$('planner'); setStatus(p,status); $('plannerState').textContent=text; }
+
+/* ---- the A2A wire ---- */
+function addMsg(cls, head, body, status){
+  const feed=$('feed'); const empty=feed.querySelector('.feed-empty'); if(empty) empty.remove();
+  const arrow = cls==='req' ? '▶' : cls==='res' ? '◀' : cls==='mcp' ? '⚙' : '';
+  const m=document.createElement('div');
+  m.className='msg '+cls+(status==='error'?' error':'');
+  m.innerHTML = `<div class="msg-head"><span class="msg-dir"></span><span class="msg-time">${nowStr()}</span></div>`+
+                `<div class="msg-body"></div>`+
+                (arrow?`<span class="msg-arrow">${arrow}</span>`:'');
+  m.querySelector('.msg-dir').textContent = head;
+  m.querySelector('.msg-body').textContent = body || '…';
+  feed.appendChild(m);
+  m.scrollIntoView({behavior:'smooth',block:'nearest'});
+  return m;
 }
 
 /* ---- mission timer ---- */
 function startTimer(){
-  missionStart = performance.now(); missionRunning = true;
-  clearInterval(timerHandle);
-  timerHandle = setInterval(()=>{ $('timer').textContent = ((performance.now()-missionStart)/1000).toFixed(1)+'s'; },100);
+  missionStart=performance.now(); missionRunning=true; clearInterval(timerHandle);
+  timerHandle=setInterval(()=>{ $('timer').textContent=((performance.now()-missionStart)/1000).toFixed(1)+'s'; },100);
 }
 function stopTimer(){
-  missionRunning = false; clearInterval(timerHandle);
-  if(missionStart!=null) $('timer').textContent = ((performance.now()-missionStart)/1000).toFixed(1)+'s';
+  missionRunning=false; clearInterval(timerHandle);
+  if(missionStart!=null) $('timer').textContent=((performance.now()-missionStart)/1000).toFixed(1)+'s';
 }
 
-/* ---- reset UI for a new run ---- */
+/* ---- reset for a new run ---- */
 function resetUI(){
-  FIXED.forEach(id=>{
-    const el=nodeEl(id); setStatus(el,null);
-    el.querySelector('[data-dur]').textContent='';
-    const d=el.querySelector('[data-detail]'); d.textContent=''; d.classList.remove('show');
-  });
-  $('mcpList').innerHTML=''; $('mcp-wrap').classList.remove('show'); $('mcpCount').textContent='';
-  $('conn-1').classList.remove('active'); $('conn-2').classList.remove('active');
+  $('feed').innerHTML='<div class="feed-empty">Waiting for the planner to send its first message…</div>';
+  resetUnits();
+  setPlanner(null,'idle'); $('plannerGoal').textContent=''; $('plannerGoal').classList.remove('show');
   $('log').innerHTML='<div class="log-empty">No events yet.</div>';
-  $('logCount').textContent='0'; logN=0;
-  $('drawerLatest').textContent='No events yet.';
-  Object.keys(starts).forEach(k=>delete starts[k]);
+  $('logCount').textContent='0'; logN=0; $('drawerLatest').textContent='No events yet.';
   Object.keys(mcpStarts).forEach(k=>delete mcpStarts[k]);
+  Object.keys(mcpMsgs).forEach(k=>delete mcpMsgs[k]);
 }
 
 /* ---- event log ---- */
-let logN = 0;
-function nowStr(){const d=new Date();return d.toLocaleTimeString('en-GB',{hour12:false})+'.'+String(d.getMilliseconds()).padStart(3,'0');}
 function addLog(e){
   const log=$('log'); const empty=log.querySelector('.log-empty'); if(empty) empty.remove();
   let cls='t-start', label=e.type;
   if(e.type==='agent-start'||e.type==='tool-start') cls = e.type==='tool-start'?'t-tool':'t-start';
   else if(e.type.endsWith('-end')) cls = e.status==='error'?'t-end-err':'t-end-ok';
   else if(e.type.startsWith('mission')) cls='t-mission';
-  const name = e.label || e.id || '';
-  const msg = (name? name+' — ':'') + (e.detail||e.status||'');
+  const name=e.label||e.id||''; const msg=(name?name+' — ':'')+(e.detail||e.status||'');
   const line=document.createElement('div'); line.className='log-line';
-  line.innerHTML = `<span class="log-time">${nowStr()}</span>`+
-                   `<span class="log-type ${cls}">${label}</span>`+
-                   `<span class="log-msg"></span>`;
-  line.querySelector('.log-msg').textContent = msg;
-  log.appendChild(line);
-  log.parentElement.scrollTop = log.parentElement.scrollHeight;
-  $('logCount').textContent = (++logN);
-  // mirror the newest event onto the collapsed drawer handle
-  $('drawerLatest').textContent = label + ((name||e.detail||e.status)? '  ·  '+msg : '');
+  line.innerHTML=`<span class="log-time">${nowStr()}</span><span class="log-type ${cls}">${label}</span><span class="log-msg"></span>`;
+  line.querySelector('.log-msg').textContent=msg;
+  log.appendChild(line); log.parentElement.scrollTop=log.parentElement.scrollHeight;
+  $('logCount').textContent=(++logN);
+  $('drawerLatest').textContent=label+((name||e.detail||e.status)?'  ·  '+msg:'');
 }
 
-/* ---- bottom drawer ---- */
+/* ---- drawer + launch ---- */
 function toggleDrawer(){ $('drawer').classList.toggle('open'); }
-
-/* ---- launch mission ---- */
-function setLaunch(running){
-  const btn=$('launchBtn');
-  btn.disabled = running;
-  btn.textContent = running ? 'On mission…' : '⚡ Assemble';
-}
+function setLaunch(running){ const b=$('launchBtn'); b.disabled=running; b.textContent=running?'On mission…':'⚡ Assemble'; }
 function launchMission(){
-  const btn=$('launchBtn'); btn.disabled=true; btn.textContent='Assembling…';
-  fetch('/launch',{method:'POST'}).then(r=>{
-    if(r.status===409){ setLaunch(true); }   // already running — mission-end will re-enable
-    // on success, the mission-start event takes over the button state
-  }).catch(()=>{ setLaunch(false); });
-}
-
-/* ---- MCP rows ---- */
-function mcpRow(id){
-  let row=$('mcprow-'+id);
-  if(!row){
-    $('mcp-wrap').classList.add('show');
-    row=document.createElement('div'); row.id='mcprow-'+id; row.className='mcp-row';
-    row.innerHTML=`<span class="dot"></span><span class="mcp-name"></span>`+
-                  `<span class="mcp-detail"></span><span class="mcp-dur"></span>`;
-    $('mcpList').appendChild(row);
-    $('mcpCount').textContent = '('+$('mcpList').children.length+')';
-  }
-  return row;
+  const b=$('launchBtn'); b.disabled=true; b.textContent='Assembling…';
+  fetch('/launch',{method:'POST'}).then(r=>{ if(r.status===409) setLaunch(true); }).catch(()=>setLaunch(false));
 }
 
 /* ---- main dispatch ---- */
 function handle(e){
-  if(e.type==='reset'){ resetUI(); setLaunch(false); $('missionText').textContent='Waiting for Nick Wooly…'; $('missionBadge').className='badge b-idle'; $('missionBadge').textContent='idle'; return; }
+  if(e.type==='reset'){
+    resetUI(); setLaunch(false);
+    $('missionText').textContent='Waiting for Nick Wooly…';
+    $('missionBadge').className='badge b-idle'; $('missionBadge').textContent='idle';
+    return;
+  }
   if(e.type!=='mission-start' && e.type!=='mission-end') addLog(e);
 
   switch(e.type){
     case 'mission-start':
       resetUI(); setLaunch(true);
-      $('missionText').textContent = e.detail || 'Mission launched';
+      $('missionText').textContent=e.detail||'Mission launched';
       $('missionBadge').className='badge b-run'; $('missionBadge').textContent='running';
-      startTimer(); addLog(e);
+      if(e.detail){ $('plannerGoal').textContent='Goal: '+e.detail; $('plannerGoal').classList.add('show'); }
+      setPlanner('running','▶ planning…'); startTimer(); addLog(e);
       break;
-    case 'mission-end':
+    case 'mission-end':{
       stopTimer(); setLaunch(false);
-      const ok = e.status!=='error';
+      const ok=e.status!=='error';
       $('missionBadge').className='badge '+(ok?'b-ok':'b-err');
-      $('missionBadge').textContent = ok?'restored ✓':'failed ✗';
-      if(e.detail){ $('missionText').textContent = e.detail; }
+      $('missionBadge').textContent=ok?'restored ✓':'failed ✗';
+      if(e.detail) $('missionText').textContent=e.detail;
+      setPlanner(ok?'ok':'error', ok?'✓ goal reached':'✗ goal failed');
       addLog(e);
       break;
+    }
 
     case 'agent-start':{
-      const el=nodeEl(e.id); if(!el) break;
-      starts[e.id]=performance.now(); setStatus(el,'running');
-      el.querySelector('[data-dur]').textContent='running…';
-      if(e.id==='ironRam') $('conn-1').classList.add('active');
-      if(e.id==='bruce') $('conn-2').classList.add('active');
-      if(e.detail){const d=el.querySelector('[data-detail]'); d.textContent=e.detail; d.classList.add('show');}
+      const a=agentFor(e);
+      bumpCount(a.key); setUnit(a.key,'active');
+      setPlanner('running','▶ invoking '+a.label);
+      if(a.side==='remote'){
+        // a request leaves the local orchestrator and crosses the A2A boundary
+        addMsg('req', 'client → '+a.label+'  ·  A2A message/send', e.detail);
+      }else{
+        // a local LLM call — never leaves the orchestrator
+        addMsg('local', a.label+'  ·  local LLM — prompt', e.detail);
+      }
       break;
     }
     case 'agent-end':{
-      const el=nodeEl(e.id); if(!el) break;
-      const dur = starts[e.id]!=null ? performance.now()-starts[e.id] : null;
-      setStatus(el, e.status==='error'?'error':'ok');
-      el.querySelector('[data-dur]').textContent = fmt(dur);
-      if(e.id==='nickWooly') $('conn-1').classList.add('active'); // about to hand to Iron-Ram
-      if(e.id==='ironRam') $('conn-1').classList.remove('active');
-      if(e.id==='bruce') $('conn-2').classList.remove('active');
-      if(e.detail){const d=el.querySelector('[data-detail]'); d.textContent=e.detail; d.classList.add('show');}
+      const a=agentFor(e);
+      const st = e.status==='error'?'error':'ok';
+      setUnit(a.key, st);
+      if(a.side==='remote'){
+        // the remote service answers back across the boundary with its task artifact
+        addMsg('res', a.label+' → client  ·  task artifact', e.detail, st);
+      }else{
+        addMsg('local', a.label+'  ·  local LLM — result', e.detail, st);
+      }
+      if(missionRunning) setPlanner('running','▶ planning next action…');
       break;
     }
 
     case 'tool-start':{
-      const row=mcpRow(e.id); mcpStarts[e.id]=performance.now();
-      setStatus(row,'running');
-      row.querySelector('.mcp-name').textContent = e.label || 'tool';
-      row.querySelector('.mcp-detail').textContent = e.detail || '';
-      row.querySelector('.mcp-dur').textContent='…';
+      const parent=byKey[e.parent];
+      mcpStarts[e.id]=performance.now();
+      mcpMsgs[e.id]=addMsg('mcp', (parent?parent.label:'remote')+' ⚙ Garage MCP · '+(e.label||'tool'), e.detail);
       break;
     }
     case 'tool-end':{
-      const row=mcpRow(e.id);
-      const dur = mcpStarts[e.id]!=null ? performance.now()-mcpStarts[e.id] : null;
-      setStatus(row, e.status==='error'?'error':'ok');
-      if(e.detail) row.querySelector('.mcp-detail').textContent = e.detail;
-      row.querySelector('.mcp-dur').textContent = fmt(dur);
+      const m=mcpMsgs[e.id]; if(!m) break;
+      const dur=mcpStarts[e.id]!=null?performance.now()-mcpStarts[e.id]:null;
+      if(e.status==='error') m.classList.add('error');
+      const t=m.querySelector('.msg-time'); if(t&&dur!=null) t.textContent=fmt(dur);
+      if(e.detail) m.querySelector('.msg-body').textContent=e.detail;
       break;
     }
   }
@@ -525,10 +560,10 @@ function handle(e){
 
 /* ---- SSE wiring ---- */
 function connect(){
-  const es = new EventSource('/events');
-  es.onopen = ()=>{ $('connDot').className='conn-dot live'; $('connText').textContent='live'; };
-  es.onerror = ()=>{ $('connDot').className='conn-dot'; $('connText').textContent='reconnecting…'; };
-  es.onmessage = (m)=>{ if(!m.data) return; try{ handle(JSON.parse(m.data)); }catch(err){ console.warn('bad event',m.data,err); } };
+  const es=new EventSource('/events');
+  es.onopen=()=>{ $('connDot').className='conn-dot live'; $('connText').textContent='live'; };
+  es.onerror=()=>{ $('connDot').className='conn-dot'; $('connText').textContent='reconnecting…'; };
+  es.onmessage=(m)=>{ if(!m.data) return; try{ handle(JSON.parse(m.data)); }catch(err){ console.warn('bad event',m.data,err); } };
 }
 updateThemeIcon();
 connect();
